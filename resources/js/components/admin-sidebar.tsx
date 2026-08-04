@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, MessageSquareText, Rows3, Settings } from 'lucide-react';
+import { Globe, LayoutGrid, MessageSquareText, Rows3, Settings } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -16,6 +16,7 @@ import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as demoRequestsIndex } from '@/routes/admin/demo-requests';
 import { index as sectionsIndex } from '@/routes/admin/sections';
 import { edit as siteSettingsEdit } from '@/routes/admin/site-settings';
+import { index as visitorsIndex } from '@/routes/admin/visitors';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -33,6 +34,11 @@ const mainNavItems: NavItem[] = [
         title: 'Demo Requests',
         href: demoRequestsIndex(),
         icon: MessageSquareText,
+    },
+    {
+        title: 'Visitors',
+        href: visitorsIndex(),
+        icon: Globe,
     },
     {
         title: 'Site Settings',

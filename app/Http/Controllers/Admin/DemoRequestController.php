@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkDeleteDemoRequestsRequest;
+use App\Http\Requests\Admin\BulkUpdateDemoRequestStatusRequest;
 use App\Http\Requests\Admin\UpdateDemoRequestStatusRequest;
 use App\Models\DemoRequest;
 use Illuminate\Http\RedirectResponse;
@@ -32,9 +34,24 @@ class DemoRequestController extends Controller
             $query->whereDate('created_at', '<=', $to);
         }
 
+        if ($search = $request->string('search')->value()) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('company', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
         return Inertia::render('admin/demo-requests/index', [
             'demoRequests' => $query->paginate(20)->withQueryString(),
-            'filters' => $request->only(['status', 'from', 'to']),
+            'filters' => $request->only(['status', 'from', 'to', 'search']),
+            'counts' => [
+                'all' => DemoRequest::query()->count(),
+                'new' => DemoRequest::query()->where('status', DemoRequest::STATUS_NEW)->count(),
+                'contacted' => DemoRequest::query()->where('status', DemoRequest::STATUS_CONTACTED)->count(),
+                'converted' => DemoRequest::query()->where('status', DemoRequest::STATUS_CONVERTED)->count(),
+                'closed' => DemoRequest::query()->where('status', DemoRequest::STATUS_CLOSED)->count(),
+            ],
         ]);
     }
 
@@ -56,6 +73,46 @@ class DemoRequestController extends Controller
         $demoRequest->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Status updated.']);
+
+        return back();
+    }
+
+    /**
+     * Delete a demo request.
+     */
+    public function destroy(DemoRequest $demoRequest): RedirectResponse
+    {
+        $demoRequest->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Demo request deleted.']);
+
+        return back();
+    }
+
+    /**
+     * Update the status of multiple demo requests at once.
+     */
+    public function bulkUpdate(BulkUpdateDemoRequestStatusRequest $request): RedirectResponse
+    {
+        $count = DemoRequest::query()
+            ->whereIn('id', $request->validated('ids'))
+            ->update(['status' => $request->validated('status')]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Updated {$count} demo request(s)."]);
+
+        return back();
+    }
+
+    /**
+     * Delete multiple demo requests at once.
+     */
+    public function bulkDestroy(BulkDeleteDemoRequestsRequest $request): RedirectResponse
+    {
+        $count = DemoRequest::query()
+            ->whereIn('id', $request->validated('ids'))
+            ->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Deleted {$count} demo request(s)."]);
 
         return back();
     }

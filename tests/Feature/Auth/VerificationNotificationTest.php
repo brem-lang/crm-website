@@ -24,11 +24,11 @@ test('sends verification notification', function () {
 test('does not send verification notification if email is verified', function () {
     Notification::fake();
 
-    $user = User::factory()->create();
+    $user = User::factory()->create(['is_admin' => true]);
 
     $this->actingAs($user)
         ->post(route('verification.send'))
-        ->assertRedirect(route('dashboard', absolute: false));
+        ->assertRedirect(route('admin.dashboard', absolute: false));
 
     Notification::assertNothingSent();
 });

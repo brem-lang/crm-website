@@ -1,8 +1,45 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Download } from 'lucide-react';
+import {
+    Briefcase,
+    Building2,
+    CheckCircle2,
+    Circle,
+    Download,
+    Eye,
+    Globe,
+    Loader2,
+    Mail,
+    MessageSquareText,
+    MoreHorizontal,
+    Phone,
+    Search,
+    Trash2,
+    X,
+    XCircle,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 import Heading from '@/components/heading';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -27,6 +64,10 @@ type DemoRequest = {
     name: string;
     company: string;
     email: string;
+    phone: string;
+    country: string;
+    business_type: string;
+    message: string | null;
     status: string;
     created_at: string;
 };
@@ -36,22 +77,94 @@ type Paginated<T> = {
     links: { url: string | null; label: string; active: boolean }[];
 };
 
-const STATUS_OPTIONS = ['new', 'contacted', 'converted', 'closed'];
-
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'outline'> = {
-    new: 'default',
-    contacted: 'secondary',
-    converted: 'default',
-    closed: 'outline',
+type Counts = {
+    all: number;
+    new: number;
+    contacted: number;
+    converted: number;
+    closed: number;
 };
+
+const STATUS_OPTIONS = ['new', 'contacted', 'converted', 'closed'] as const;
+
+const STATUS_STYLES: Record<string, string> = {
+    new: 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400',
+    contacted: 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400',
+    converted: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400',
+    closed: 'bg-zinc-500/10 text-zinc-600 border-zinc-500/20 dark:text-zinc-400',
+};
+
+function StatusBadge({ status }: { status: string }) {
+    return (
+        <Badge
+            variant="outline"
+            className={`gap-1.5 capitalize ${STATUS_STYLES[status] ?? ''}`}
+        >
+            <Circle className="size-1.5 fill-current" />
+            {status}
+        </Badge>
+    );
+}
+
+function initials(name: string) {
+    return name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('');
+}
 
 export default function DemoRequestsIndex({
     demoRequests: paginated,
     filters,
+    counts,
 }: {
     demoRequests: Paginated<DemoRequest>;
-    filters: { status?: string; from?: string; to?: string };
+    filters: { status?: string; from?: string; to?: string; search?: string };
+    counts: Counts;
 }) {
+    const [search, setSearch] = useState(filters.search ?? '');
+    const [viewing, setViewing] = useState<DemoRequest | null>(null);
+    const [pendingDelete, setPendingDelete] = useState<DemoRequest[] | null>(null);
+    const [deleting, setDeleting] = useState(false);
+    const [updatingId, setUpdatingId] = useState<number | null>(null);
+    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+    const [bulkUpdating, setBulkUpdating] = useState(false);
+
+    const pageIds = useMemo(() => paginated.data.map((r) => r.id), [paginated.data]);
+    const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+    const someOnPageSelected = pageIds.some((id) => selectedIds.has(id));
+    const selectedRequests = paginated.data.filter((r) => selectedIds.has(r.id));
+
+    function toggleSelectAll() {
+        setSelectedIds((current) => {
+            const next = new Set(current);
+
+            if (allOnPageSelected) {
+                pageIds.forEach((id) => next.delete(id));
+            } else {
+                pageIds.forEach((id) => next.add(id));
+            }
+
+            return next;
+        });
+    }
+
+    function toggleSelect(id: number) {
+        setSelectedIds((current) => {
+            const next = new Set(current);
+
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+
+            return next;
+        });
+    }
+
     function updateFilters(next: Partial<typeof filters>) {
         router.get(
             index().url,
@@ -60,12 +173,88 @@ export default function DemoRequestsIndex({
         );
     }
 
+    function updateStatus(request: DemoRequest, status: string) {
+        setUpdatingId(request.id);
+        router.patch(
+            demoRequests.update(request).url,
+            { status },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onFinish: () => setUpdatingId(null),
+                onSuccess: () => {
+                    setViewing((current) =>
+                        current?.id === request.id ? { ...current, status } : current,
+                    );
+                },
+            },
+        );
+    }
+
+    function confirmDelete() {
+        if (!pendingDelete || pendingDelete.length === 0) {
+            return;
+        }
+
+        setDeleting(true);
+
+        const ids = pendingDelete.map((r) => r.id);
+        const onFinish = () => {
+            setDeleting(false);
+            setPendingDelete(null);
+            setSelectedIds((current) => {
+                const next = new Set(current);
+                ids.forEach((id) => next.delete(id));
+
+                return next;
+            });
+        };
+
+        if (pendingDelete.length === 1) {
+            router.delete(demoRequests.destroy(pendingDelete[0]).url, {
+                preserveScroll: true,
+                onFinish,
+            });
+        } else {
+            router.delete(demoRequests.bulkDestroy().url, {
+                data: { ids },
+                preserveScroll: true,
+                onFinish,
+            });
+        }
+    }
+
+    function bulkUpdateStatus(status: string) {
+        if (selectedRequests.length === 0) {
+            return;
+        }
+
+        setBulkUpdating(true);
+        router.patch(
+            demoRequests.bulkUpdate().url,
+            { ids: selectedRequests.map((r) => r.id), status },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onFinish: () => setBulkUpdating(false),
+            },
+        );
+    }
+
+    const statCards: { key: keyof Counts; label: string; filterValue?: string }[] = [
+        { key: 'all', label: 'Total' },
+        { key: 'new', label: 'New', filterValue: 'new' },
+        { key: 'contacted', label: 'Contacted', filterValue: 'contacted' },
+        { key: 'converted', label: 'Converted', filterValue: 'converted' },
+        { key: 'closed', label: 'Closed', filterValue: 'closed' },
+    ];
+
     return (
         <>
             <Head title="Demo Requests" />
 
             <div className="space-y-6 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between [&>header]:mb-0">
                     <Heading
                         title="Demo Requests"
                         description="Review submissions and follow up with prospects."
@@ -79,57 +268,170 @@ export default function DemoRequestsIndex({
                     </Button>
                 </div>
 
-                <div className="flex flex-wrap items-end gap-3">
-                    <div className="grid gap-1.5">
-                        <label className="text-sm text-muted-foreground">Status</label>
-                        <Select
-                            value={filters.status ?? 'all'}
-                            onValueChange={(value) =>
-                                updateFilters({ status: value === 'all' ? undefined : value })
-                            }
-                        >
-                            <SelectTrigger className="w-40">
-                                <SelectValue placeholder="All statuses" />
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                    {statCards.map((card) => {
+                        const active = card.filterValue
+                            ? filters.status === card.filterValue
+                            : !filters.status;
+
+                        return (
+                            <button
+                                key={card.key}
+                                type="button"
+                                onClick={() => updateFilters({ status: card.filterValue })}
+                                className={`rounded-xl border p-4 text-left transition-colors hover:bg-accent ${
+                                    active ? 'border-primary bg-accent/60' : ''
+                                }`}
+                            >
+                                <p className="text-sm text-muted-foreground">{card.label}</p>
+                                <p className="mt-1 text-2xl font-semibold">{counts[card.key]}</p>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <Card>
+                    <CardContent className="flex flex-wrap items-end gap-3 pt-6">
+                        <div className="grid min-w-55 flex-1 gap-1.5">
+                            <label className="text-sm text-muted-foreground">Search</label>
+                            <div className="relative">
+                                <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    className="pl-8"
+                                    placeholder="Name, company, or email…"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            updateFilters({ search: search || undefined });
+                                        }
+                                    }}
+                                    onBlur={() => updateFilters({ search: search || undefined })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-1.5">
+                            <label className="text-sm text-muted-foreground">Status</label>
+                            <Select
+                                value={filters.status ?? 'all'}
+                                onValueChange={(value) =>
+                                    updateFilters({ status: value === 'all' ? undefined : value })
+                                }
+                            >
+                                <SelectTrigger className="w-40">
+                                    <SelectValue placeholder="All statuses" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All statuses</SelectItem>
+                                    {STATUS_OPTIONS.map((status) => (
+                                        <SelectItem key={status} value={status} className="capitalize">
+                                            {status}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="grid gap-1.5">
+                            <label className="text-sm text-muted-foreground">From</label>
+                            <Input
+                                type="date"
+                                defaultValue={filters.from ?? ''}
+                                className="w-40"
+                                onChange={(e) => updateFilters({ from: e.target.value || undefined })}
+                            />
+                        </div>
+
+                        <div className="grid gap-1.5">
+                            <label className="text-sm text-muted-foreground">To</label>
+                            <Input
+                                type="date"
+                                defaultValue={filters.to ?? ''}
+                                className="w-40"
+                                onChange={(e) => updateFilters({ to: e.target.value || undefined })}
+                            />
+                        </div>
+
+                        {(filters.status || filters.from || filters.to || filters.search) && (
+                            <Button
+                                variant="ghost"
+                                onClick={() => {
+                                    setSearch('');
+                                    router.get(index().url, {}, { preserveState: true, preserveScroll: true });
+                                }}
+                            >
+                                Clear filters
+                            </Button>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {selectedRequests.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-accent/40 p-3">
+                        <span className="text-sm font-medium">
+                            {selectedRequests.length} selected
+                        </span>
+
+                        <Select onValueChange={bulkUpdateStatus} disabled={bulkUpdating}>
+                            <SelectTrigger className="w-44">
+                                <SelectValue placeholder="Mark as…" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All statuses</SelectItem>
                                 {STATUS_OPTIONS.map((status) => (
-                                    <SelectItem key={status} value={status}>
+                                    <SelectItem key={status} value={status} className="capitalize">
                                         {status}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
 
-                    <div className="grid gap-1.5">
-                        <label className="text-sm text-muted-foreground">From</label>
-                        <Input
-                            type="date"
-                            defaultValue={filters.from ?? ''}
-                            onChange={(e) => updateFilters({ from: e.target.value || undefined })}
-                        />
-                    </div>
+                        {bulkUpdating && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
 
-                    <div className="grid gap-1.5">
-                        <label className="text-sm text-muted-foreground">To</label>
-                        <Input
-                            type="date"
-                            defaultValue={filters.to ?? ''}
-                            onChange={(e) => updateFilters({ to: e.target.value || undefined })}
-                        />
-                    </div>
-                </div>
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setPendingDelete(selectedRequests)}
+                        >
+                            <Trash2 className="size-4" />
+                            Delete
+                        </Button>
 
-                <div className="rounded-xl border">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-auto"
+                            onClick={() => setSelectedIds(new Set())}
+                        >
+                            <X className="size-4" />
+                            Clear selection
+                        </Button>
+                    </div>
+                )}
+
+                <div className="overflow-hidden rounded-xl border">
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="w-10">
+                                    <Checkbox
+                                        checked={
+                                            allOnPageSelected
+                                                ? true
+                                                : someOnPageSelected
+                                                  ? 'indeterminate'
+                                                  : false
+                                        }
+                                        onCheckedChange={toggleSelectAll}
+                                        aria-label="Select all"
+                                    />
+                                </TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Company</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Submitted</TableHead>
+                                <TableHead className="w-12 text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -137,26 +439,96 @@ export default function DemoRequestsIndex({
                                 <TableRow
                                     key={request.id}
                                     className="cursor-pointer"
-                                    onClick={() => router.visit(demoRequests.show(request).url)}
+                                    data-state={selectedIds.has(request.id) ? 'selected' : undefined}
+                                    onClick={() => setViewing(request)}
                                 >
-                                    <TableCell>{request.name}</TableCell>
-                                    <TableCell>{request.company}</TableCell>
-                                    <TableCell>{request.email}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={STATUS_VARIANT[request.status] ?? 'outline'}>
-                                            {request.status}
-                                        </Badge>
+                                    <TableCell onClick={(e) => e.stopPropagation()}>
+                                        <Checkbox
+                                            checked={selectedIds.has(request.id)}
+                                            onCheckedChange={() => toggleSelect(request.id)}
+                                            aria-label={`Select ${request.name}`}
+                                        />
                                     </TableCell>
                                     <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="size-8">
+                                                <AvatarFallback className="text-xs">
+                                                    {initials(request.name)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <span className="font-medium">{request.name}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                                            <Building2 className="size-3.5" />
+                                            {request.company}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">{request.email}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-1.5">
+                                            <StatusBadge status={request.status} />
+                                            {updatingId === request.id && (
+                                                <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">
                                         {new Date(request.created_at).toLocaleDateString()}
+                                    </TableCell>
+                                    <TableCell
+                                        className="text-right"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="size-8">
+                                                    <MoreHorizontal className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuItem onClick={() => setViewing(request)}>
+                                                    <Eye className="size-4" />
+                                                    View details
+                                                </DropdownMenuItem>
+
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuLabel>Mark as</DropdownMenuLabel>
+                                                {STATUS_OPTIONS.filter(
+                                                    (status) => status !== request.status,
+                                                ).map((status) => (
+                                                    <DropdownMenuItem
+                                                        key={status}
+                                                        className="capitalize"
+                                                        onClick={() => updateStatus(request, status)}
+                                                    >
+                                                        <CheckCircle2 className="size-4" />
+                                                        {status}
+                                                    </DropdownMenuItem>
+                                                ))}
+
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
+                                                    variant="destructive"
+                                                    onClick={() => setPendingDelete([request])}
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))}
 
                             {paginated.data.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center text-muted-foreground">
-                                        No demo requests found.
+                                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                                        <div className="flex flex-col items-center gap-2">
+                                            <XCircle className="size-6 text-muted-foreground/50" />
+                                            No demo requests found.
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -175,7 +547,7 @@ export default function DemoRequestsIndex({
                                 asChild={!!link.url}
                             >
                                 {link.url ? (
-                                    <Link href={link.url}>
+                                    <Link href={link.url} preserveScroll>
                                         <span dangerouslySetInnerHTML={{ __html: link.label }} />
                                     </Link>
                                 ) : (
@@ -186,6 +558,157 @@ export default function DemoRequestsIndex({
                     </div>
                 )}
             </div>
+
+            <Dialog open={!!viewing} onOpenChange={(open) => !open && setViewing(null)}>
+                <DialogContent className="sm:max-w-lg">
+                    {viewing && (
+                        <>
+                            <DialogHeader>
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="size-10">
+                                        <AvatarFallback>{initials(viewing.name)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <DialogTitle>{viewing.name}</DialogTitle>
+                                        <DialogDescription className="flex items-center gap-1.5">
+                                            <Building2 className="size-3.5" />
+                                            {viewing.company}
+                                        </DialogDescription>
+                                    </div>
+                                </div>
+                            </DialogHeader>
+
+                            <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 p-3">
+                                <div className="flex items-center gap-1.5">
+                                    <StatusBadge status={viewing.status} />
+                                    {updatingId === viewing.id && (
+                                        <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+                                    )}
+                                </div>
+                                <Select
+                                    value={viewing.status}
+                                    onValueChange={(status) => updateStatus(viewing, status)}
+                                >
+                                    <SelectTrigger className="w-40">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {STATUS_OPTIONS.map((status) => (
+                                            <SelectItem key={status} value={status} className="capitalize">
+                                                {status}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <dl className="grid grid-cols-2 gap-4 text-sm">
+                                <div className="space-y-1">
+                                    <dt className="flex items-center gap-1.5 text-muted-foreground">
+                                        <Mail className="size-3.5" />
+                                        Email
+                                    </dt>
+                                    <dd className="break-all">{viewing.email}</dd>
+                                </div>
+                                <div className="space-y-1">
+                                    <dt className="flex items-center gap-1.5 text-muted-foreground">
+                                        <Phone className="size-3.5" />
+                                        Phone
+                                    </dt>
+                                    <dd>{viewing.phone}</dd>
+                                </div>
+                                <div className="space-y-1">
+                                    <dt className="flex items-center gap-1.5 text-muted-foreground">
+                                        <Globe className="size-3.5" />
+                                        Country
+                                    </dt>
+                                    <dd>{viewing.country}</dd>
+                                </div>
+                                <div className="space-y-1">
+                                    <dt className="flex items-center gap-1.5 text-muted-foreground">
+                                        <Briefcase className="size-3.5" />
+                                        Business Type
+                                    </dt>
+                                    <dd>{viewing.business_type}</dd>
+                                </div>
+                            </dl>
+
+                            {viewing.message && (
+                                <div className="space-y-1">
+                                    <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                        <MessageSquareText className="size-3.5" />
+                                        Message
+                                    </dt>
+                                    <dd className="rounded-lg border bg-muted/40 p-3 text-sm whitespace-pre-wrap">
+                                        {viewing.message}
+                                    </dd>
+                                </div>
+                            )}
+
+                            <p className="text-xs text-muted-foreground">
+                                Submitted {new Date(viewing.created_at).toLocaleString()}
+                            </p>
+
+                            <DialogFooter>
+                                <Button
+                                    variant="destructive"
+                                    onClick={() => {
+                                        setPendingDelete([viewing]);
+                                        setViewing(null);
+                                    }}
+                                >
+                                    <Trash2 className="size-4" />
+                                    Delete
+                                </Button>
+                                <Button variant="outline" onClick={() => setViewing(null)}>
+                                    Close
+                                </Button>
+                            </DialogFooter>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {pendingDelete && pendingDelete.length > 1
+                                ? `Delete ${pendingDelete.length} demo requests?`
+                                : 'Delete demo request?'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {pendingDelete && pendingDelete.length > 1 ? (
+                                <>
+                                    This will permanently remove{' '}
+                                    <span className="font-medium text-foreground">
+                                        {pendingDelete.length} demo requests
+                                    </span>{' '}
+                                    from AlphaMasterCRM. This action cannot be undone.
+                                </>
+                            ) : (
+                                <>
+                                    This will permanently remove{' '}
+                                    <span className="font-medium text-foreground">
+                                        {pendingDelete?.[0]?.name}
+                                    </span>
+                                    {pendingDelete?.[0]?.company ? ` (${pendingDelete[0].company})` : ''} from
+                                    AlphaMasterCRM. This action cannot be undone.
+                                </>
+                            )}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setPendingDelete(null)} disabled={deleting}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete} disabled={deleting}>
+                            {deleting && <Loader2 className="size-4 animate-spin" />}
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

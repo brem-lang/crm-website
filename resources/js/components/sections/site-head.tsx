@@ -15,7 +15,6 @@ export function SiteHead({ settings }: { settings: SiteSettings }) {
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content={title} />
             {description && <meta name="twitter:description" content={description} />}
-            {settings.favicon_url && <link rel="icon" href={settings.favicon_url} />}
         </Head>
     );
 }

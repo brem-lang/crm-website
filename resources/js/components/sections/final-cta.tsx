@@ -64,6 +64,7 @@ export function FinalCta({
                         <Form
                             {...demoRequests.store.form()}
                             resetOnSuccess
+                            options={{ preserveScroll: true }}
                             className="grid gap-4"
                         >
                             {({ processing, errors }) => (
@@ -154,6 +155,12 @@ export function FinalCta({
                                             </p>
                                         )}
                                     </div>
+
+                                    {errors.form && (
+                                        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                                            {errors.form}
+                                        </p>
+                                    )}
 
                                     <Button type="submit" size="lg" disabled={processing} className="mt-2">
                                         {content.submit_button_text ?? 'Request My Demo'}
