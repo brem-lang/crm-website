@@ -6,6 +6,7 @@ use Database\Factories\DemoRequestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -34,4 +35,12 @@ class DemoRequest extends Model
     public const STATUS_CONVERTED = 'converted';
 
     public const STATUS_CLOSED = 'closed';
+
+    /**
+     * The history of login-credentials emails sent for this demo request.
+     */
+    public function sentEmails(): HasMany
+    {
+        return $this->hasMany(DemoRequestSentEmail::class);
+    }
 }

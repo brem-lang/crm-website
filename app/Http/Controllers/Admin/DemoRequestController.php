@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkDeleteDemoRequestsRequest;
 use App\Http\Requests\Admin\BulkUpdateDemoRequestStatusRequest;
+use App\Http\Requests\Admin\SendDemoRequestCredentialsRequest;
 use App\Http\Requests\Admin\UpdateDemoRequestStatusRequest;
+use App\Mail\DemoRequestCredentialsMail;
 use App\Models\DemoRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -20,7 +23,9 @@ class DemoRequestController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = DemoRequest::query()->latest();
+        $query = DemoRequest::query()
+            ->with(['sentEmails' => fn ($q) => $q->latest()])
+            ->latest();
 
         if ($status = $request->string('status')->value()) {
             $query->where('status', $status);
@@ -99,6 +104,28 @@ class DemoRequestController extends Controller
             ->update(['status' => $request->validated('status')]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => "Updated {$count} demo request(s)."]);
+
+        return back();
+    }
+
+    /**
+     * Email login credentials to the person who submitted this demo request.
+     */
+    public function sendEmail(SendDemoRequestCredentialsRequest $request, DemoRequest $demoRequest): RedirectResponse
+    {
+        Mail::to($demoRequest->email)->send(new DemoRequestCredentialsMail(
+            demoRequestName: $demoRequest->name,
+            url: $request->validated('url'),
+            loginEmail: $request->validated('email'),
+            password: $request->validated('password'),
+        ));
+
+        $demoRequest->sentEmails()->create([
+            'url' => $request->validated('url'),
+            'login_email' => $request->validated('email'),
+        ]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Credentials emailed to {$demoRequest->email}."]);
 
         return back();
     }

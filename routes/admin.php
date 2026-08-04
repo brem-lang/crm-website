@@ -29,6 +29,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.'
     Route::get('demo-requests/{demoRequest}', [DemoRequestController::class, 'show'])->name('demo-requests.show');
     Route::patch('demo-requests/{demoRequest}', [DemoRequestController::class, 'update'])->name('demo-requests.update');
     Route::delete('demo-requests/{demoRequest}', [DemoRequestController::class, 'destroy'])->name('demo-requests.destroy');
+    Route::post('demo-requests/{demoRequest}/send-email', [DemoRequestController::class, 'sendEmail'])->name('demo-requests.send-email');
 
     Route::get('site-settings', [SiteSettingController::class, 'edit'])->name('site-settings.edit');
     Route::patch('site-settings', [SiteSettingController::class, 'update'])->name('site-settings.update');

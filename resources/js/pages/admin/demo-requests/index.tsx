@@ -13,6 +13,7 @@ import {
     MoreHorizontal,
     Phone,
     Search,
+    Send,
     Trash2,
     X,
     XCircle,
@@ -41,6 +42,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -59,6 +61,13 @@ import {
 import { dashboard } from '@/routes/admin';
 import demoRequests, { index } from '@/routes/admin/demo-requests';
 
+type SentEmail = {
+    id: number;
+    url: string;
+    login_email: string;
+    created_at: string;
+};
+
 type DemoRequest = {
     id: number;
     name: string;
@@ -70,6 +79,7 @@ type DemoRequest = {
     message: string | null;
     status: string;
     created_at: string;
+    sent_emails: SentEmail[];
 };
 
 type Paginated<T> = {
@@ -131,6 +141,10 @@ export default function DemoRequestsIndex({
     const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [bulkUpdating, setBulkUpdating] = useState(false);
+    const [sendingEmailTo, setSendingEmailTo] = useState<DemoRequest | null>(null);
+    const [emailForm, setEmailForm] = useState({ url: '', email: '', password: '' });
+    const [emailErrors, setEmailErrors] = useState<Record<string, string>>({});
+    const [sendingEmail, setSendingEmail] = useState(false);
 
     const pageIds = useMemo(() => paginated.data.map((r) => r.id), [paginated.data]);
     const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
@@ -222,6 +236,26 @@ export default function DemoRequestsIndex({
                 onFinish,
             });
         }
+    }
+
+    function openSendEmail(request: DemoRequest) {
+        setSendingEmailTo(request);
+        setEmailForm({ url: '', email: '', password: '' });
+        setEmailErrors({});
+    }
+
+    function submitSendEmail() {
+        if (!sendingEmailTo) {
+            return;
+        }
+
+        setSendingEmail(true);
+        router.post(demoRequests.sendEmail(sendingEmailTo).url, emailForm, {
+            preserveScroll: true,
+            onSuccess: () => setSendingEmailTo(null),
+            onError: (errors) => setEmailErrors(errors as Record<string, string>),
+            onFinish: () => setSendingEmail(false),
+        });
     }
 
     function bulkUpdateStatus(status: string) {
@@ -492,6 +526,10 @@ export default function DemoRequestsIndex({
                                                     <Eye className="size-4" />
                                                     View details
                                                 </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => openSendEmail(request)}>
+                                                    <Send className="size-4" />
+                                                    Send email
+                                                </DropdownMenuItem>
 
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuLabel>Mark as</DropdownMenuLabel>
@@ -645,6 +683,39 @@ export default function DemoRequestsIndex({
                                 </div>
                             )}
 
+                            <div className="space-y-1.5">
+                                <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                    <Send className="size-3.5" />
+                                    Credentials Sent
+                                </dt>
+                                {viewing.sent_emails.length > 0 ? (
+                                    <ul className="space-y-2">
+                                        {viewing.sent_emails.map((sent) => (
+                                            <li
+                                                key={sent.id}
+                                                className="rounded-lg border bg-muted/40 p-3 text-sm"
+                                            >
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="font-medium break-all">
+                                                        {sent.login_email}
+                                                    </span>
+                                                    <span className="shrink-0 text-xs text-muted-foreground">
+                                                        {new Date(sent.created_at).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <p className="mt-1 break-all text-xs text-muted-foreground">
+                                                    {sent.url}
+                                                </p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">
+                                        No credentials sent yet.
+                                    </p>
+                                )}
+                            </div>
+
                             <p className="text-xs text-muted-foreground">
                                 Submitted {new Date(viewing.created_at).toLocaleString()}
                             </p>
@@ -660,12 +731,113 @@ export default function DemoRequestsIndex({
                                     <Trash2 className="size-4" />
                                     Delete
                                 </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        openSendEmail(viewing);
+                                        setViewing(null);
+                                    }}
+                                >
+                                    <Send className="size-4" />
+                                    Send email
+                                </Button>
                                 <Button variant="outline" onClick={() => setViewing(null)}>
                                     Close
                                 </Button>
                             </DialogFooter>
                         </>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={!!sendingEmailTo}
+                onOpenChange={(open) => !open && setSendingEmailTo(null)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Send login credentials</DialogTitle>
+                        <DialogDescription>
+                            Sending to{' '}
+                            <span className="font-medium text-foreground">
+                                {sendingEmailTo?.email}
+                            </span>
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-4">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="send-email-url">URL</Label>
+                            <Input
+                                id="send-email-url"
+                                placeholder="https://app.alphamastercrm.test"
+                                value={emailForm.url}
+                                onChange={(e) =>
+                                    setEmailForm((f) => ({ ...f, url: e.target.value }))
+                                }
+                            />
+                            {emailErrors.url && (
+                                <p className="text-xs text-destructive">{emailErrors.url}</p>
+                            )}
+                        </div>
+
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="send-email-email">Email (login username)</Label>
+                            <Input
+                                id="send-email-email"
+                                type="email"
+                                placeholder="user@example.com"
+                                value={emailForm.email}
+                                onChange={(e) =>
+                                    setEmailForm((f) => ({ ...f, email: e.target.value }))
+                                }
+                            />
+                            {emailErrors.email && (
+                                <p className="text-xs text-destructive">{emailErrors.email}</p>
+                            )}
+                        </div>
+
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="send-email-password">Password</Label>
+                            <Input
+                                id="send-email-password"
+                                placeholder="Temporary password"
+                                value={emailForm.password}
+                                onChange={(e) =>
+                                    setEmailForm((f) => ({ ...f, password: e.target.value }))
+                                }
+                            />
+                            {emailErrors.password && (
+                                <p className="text-xs text-destructive">{emailErrors.password}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setSendingEmailTo(null)}
+                            disabled={sendingEmail}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={submitSendEmail}
+                            disabled={
+                                sendingEmail ||
+                                !emailForm.url ||
+                                !emailForm.email ||
+                                !emailForm.password
+                            }
+                        >
+                            {sendingEmail ? (
+                                <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                                <Send className="size-4" />
+                            )}
+                            Send email
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

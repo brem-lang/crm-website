@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Your Temporary Login Credentials</title>
+</head>
+<body style="margin:0; padding:0; background-color:#eef1f5; font-family:Arial, Helvetica, sans-serif;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#eef1f5; padding:30px 0;">
+    <tr>
+      <td align="center">
+
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+
+          <!-- Header -->
+          <tr>
+            <td align="center" style="background-color:#0b1a2b; padding:28px 20px;">
+              <span style="font-size:22px; font-weight:bold; color:#ffffff; letter-spacing:0.5px;">
+                AlphaMaster<span style="color:#29a8ff;">CRM</span>
+              </span>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 10px 40px;">
+              <p style="font-size:16px; color:#1a1a1a; margin:0 0 16px 0;">
+                Hi <strong>{{ $demoRequestName }}</strong>,
+              </p>
+              <p style="font-size:15px; color:#3c3c3c; line-height:1.6; margin:0 0 24px 0;">
+                Your AlphaMasterCRM account has been created. Below are your login credentials to access your account.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Credentials box -->
+          <tr>
+            <td style="padding:0 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f7fb; border:1px solid #dde6f0; border-radius:6px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 12px 0; font-size:14px; color:#5a6472;">
+                      <strong style="color:#0b1a2b;">Username:</strong>
+                      <span style="font-family:Consolas, Monaco, monospace; color:#0b1a2b;">{{ $loginEmail }}</span>
+                    </p>
+                    <p style="margin:0; font-size:14px; color:#5a6472;">
+                      <strong style="color:#0b1a2b;">Password:</strong>
+                      <span style="font-family:Consolas, Monaco, monospace; color:#0b1a2b;">{{ $password }}</span>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Warning note -->
+          <tr>
+            <td style="padding:20px 40px 0 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fff6e5; border-left:4px solid #f2b400; border-radius:4px;">
+                <tr>
+                  <td style="padding:14px 18px;">
+                    <p style="margin:0; font-size:13.5px; color:#7a5b00; line-height:1.5;">
+                      <strong>Note:</strong> This credential is <strong>temporary and valid for 48 hours only</strong>.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA button -->
+          <tr>
+            <td align="center" style="padding:30px 40px 10px 40px;">
+              <a href="{{ $url }}" style="display:inline-block; background-color:#29a8ff; color:#ffffff; text-decoration:none; font-size:15px; font-weight:bold; padding:12px 32px; border-radius:6px;">
+                Log In Now
+              </a>
+            </td>
+          </tr>
+
+          <!-- Footer note -->
+          <tr>
+            <td style="padding:20px 40px 36px 40px;">
+              <p style="font-size:13px; color:#8a8f98; line-height:1.6; margin:0;">
+                If you did not request this account, please ignore this email or contact our support team.
+                For your security, never share your login credentials with anyone.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Bottom bar -->
+          <tr>
+            <td align="center" style="background-color:#f4f7fb; padding:16px; border-top:1px solid #e6ebf1;">
+              <p style="font-size:12px; color:#9aa1ab; margin:0;">
+                &copy; {{ date('Y') }} AlphaMasterCRM. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

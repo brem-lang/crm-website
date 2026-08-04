@@ -1,0 +1,27 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\DemoRequest;
+use App\Models\DemoRequestSentEmail;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<DemoRequestSentEmail>
+ */
+class DemoRequestSentEmailFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'demo_request_id' => DemoRequest::factory(),
+            'url' => fake()->url(),
+            'login_email' => fake()->safeEmail(),
+        ];
+    }
+}
