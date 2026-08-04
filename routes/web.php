@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\DemoRequestController;
 use App\Http\Controllers\HomeController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, 'index'])
     ->middleware('track-visitor')
@@ -12,7 +14,13 @@ Route::post('demo-requests', [DemoRequestController::class, 'store'])
     ->name('demo-requests.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', function (Request $request) {
+        if ($request->user()->is_admin) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return Inertia::render('dashboard');
+    })->name('dashboard');
 });
 
 require __DIR__.'/settings.php';
