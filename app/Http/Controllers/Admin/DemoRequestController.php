@@ -23,6 +23,12 @@ class DemoRequestController extends Controller
      */
     public function index(Request $request): Response
     {
+        $perPage = $request->integer('per_page', 10);
+
+        if (! in_array($perPage, [10, 20, 50, 100], true)) {
+            $perPage = 10;
+        }
+
         $query = DemoRequest::query()
             ->with(['sentEmails' => fn ($q) => $q->latest()])
             ->latest();
@@ -48,8 +54,8 @@ class DemoRequestController extends Controller
         }
 
         return Inertia::render('admin/demo-requests/index', [
-            'demoRequests' => $query->paginate(20)->withQueryString(),
-            'filters' => $request->only(['status', 'from', 'to', 'search']),
+            'demoRequests' => $query->paginate($perPage)->withQueryString(),
+            'filters' => $request->only(['status', 'from', 'to', 'search', 'per_page']),
             'counts' => [
                 'all' => DemoRequest::query()->count(),
                 'new' => DemoRequest::query()->where('status', DemoRequest::STATUS_NEW)->count(),

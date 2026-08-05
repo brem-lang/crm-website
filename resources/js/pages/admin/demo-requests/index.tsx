@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import {
     Briefcase,
     Building2,
@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import Heading from '@/components/heading';
+import { TablePagination } from '@/components/table-pagination';
+import type { Paginated } from '@/components/table-pagination';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -82,11 +84,6 @@ type DemoRequest = {
     sent_emails: SentEmail[];
 };
 
-type Paginated<T> = {
-    data: T[];
-    links: { url: string | null; label: string; active: boolean }[];
-};
-
 type Counts = {
     all: number;
     new: number;
@@ -131,7 +128,13 @@ export default function DemoRequestsIndex({
     counts,
 }: {
     demoRequests: Paginated<DemoRequest>;
-    filters: { status?: string; from?: string; to?: string; search?: string };
+    filters: {
+        status?: string;
+        from?: string;
+        to?: string;
+        search?: string;
+        per_page?: number | string;
+    };
     counts: Counts;
 }) {
     const [search, setSearch] = useState(filters.search ?? '');
@@ -574,27 +577,11 @@ export default function DemoRequestsIndex({
                     </Table>
                 </div>
 
-                {paginated.links.length > 3 && (
-                    <div className="flex flex-wrap gap-1">
-                        {paginated.links.map((link, i) => (
-                            <Button
-                                key={i}
-                                variant={link.active ? 'default' : 'outline'}
-                                size="sm"
-                                disabled={!link.url}
-                                asChild={!!link.url}
-                            >
-                                {link.url ? (
-                                    <Link href={link.url} preserveScroll>
-                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
-                                    </Link>
-                                ) : (
-                                    <span dangerouslySetInnerHTML={{ __html: link.label }} />
-                                )}
-                            </Button>
-                        ))}
-                    </div>
-                )}
+                <TablePagination
+                    paginated={paginated}
+                    baseUrl={index().url}
+                    filters={filters}
+                />
             </div>
 
             <Dialog open={!!viewing} onOpenChange={(open) => !open && setViewing(null)}>

@@ -19,6 +19,11 @@ class VisitorController extends Controller
     public function index(Request $request): Response
     {
         $hideBots = $request->boolean('hideBots', true);
+        $perPage = $request->integer('per_page', 10);
+
+        if (! in_array($perPage, [10, 20, 50, 100], true)) {
+            $perPage = 10;
+        }
 
         $query = Visitor::query()->latest();
 
@@ -43,9 +48,9 @@ class VisitorController extends Controller
         }
 
         return Inertia::render('admin/visitors/index', [
-            'visitors' => $query->paginate(20)->withQueryString(),
+            'visitors' => $query->paginate($perPage)->withQueryString(),
             'filters' => [
-                ...$request->only(['device_type', 'country', 'from', 'to']),
+                ...$request->only(['device_type', 'country', 'from', 'to', 'per_page']),
                 'hideBots' => $hideBots,
             ],
             'counts' => [
