@@ -26,7 +26,7 @@ export function Hero({ section }: { section: PublicSection }) {
 
                     <div className="mt-10 flex flex-wrap items-center gap-4">
                         {content.primary_button_text && (
-                            <Button size="lg" asChild>
+                            <Button size="lg" asChild className="bg-blue-600 text-white hover:bg-blue-700">
                                 <a href={content.primary_button_url ?? '#demo'}>
                                     {content.primary_button_text}
                                 </a>

@@ -162,7 +162,12 @@ export function FinalCta({
                                         </p>
                                     )}
 
-                                    <Button type="submit" size="lg" disabled={processing} className="mt-2">
+                                    <Button
+                                        type="submit"
+                                        size="lg"
+                                        disabled={processing}
+                                        className="mt-2 bg-blue-600 text-white hover:bg-blue-700"
+                                    >
                                         {content.submit_button_text ?? 'Request My Demo'}
                                     </Button>
                                 </>

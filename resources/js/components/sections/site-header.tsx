@@ -14,7 +14,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                     )}
                 </a>
 
-                <Button asChild>
+                <Button asChild className="bg-blue-600 text-white hover:bg-blue-700">
                     <a href="#demo">Book a Demo</a>
                 </Button>
             </Container>
