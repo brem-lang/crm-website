@@ -1,3 +1,4 @@
+import { Expand } from 'lucide-react';
 import { useState } from 'react';
 
 import { Container } from '@/components/sections/container';
@@ -27,9 +28,10 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
                 </Reveal>
 
                 <RevealGroup className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {section.items.map((item) => (
+                    {section.items.map((item, index) => (
                         <RevealItem
                             key={item.id}
+                            delay={index * 0.05}
                             role="button"
                             tabIndex={0}
                             onClick={() => setViewing(item)}
@@ -39,9 +41,9 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
                                     setViewing(item);
                                 }
                             }}
-                            className="group cursor-pointer overflow-hidden rounded-xl border bg-card text-left transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="group cursor-pointer overflow-hidden rounded-2xl border bg-card text-left transition-all hover:-translate-y-1 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                         >
-                            <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
+                            <div className="relative aspect-video overflow-hidden bg-linear-to-br from-blue-600/15 via-blue-600/5 to-transparent">
                                 {item.image_url && (
                                     <img
                                         src={item.image_url}
@@ -49,6 +51,11 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
                                         className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                                     />
                                 )}
+                                <div className="absolute inset-0 flex items-center justify-center bg-foreground/0 opacity-0 transition-opacity group-hover:bg-foreground/20 group-hover:opacity-100">
+                                    <span className="inline-flex size-9 items-center justify-center rounded-full bg-background/90 text-foreground shadow">
+                                        <Expand className="size-4" />
+                                    </span>
+                                </div>
                             </div>
                             <p className="px-4 py-3 text-sm font-medium text-foreground">
                                 {item.title}

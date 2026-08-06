@@ -1,5 +1,8 @@
+import { CheckCircle2 } from 'lucide-react';
+
 import { Container } from '@/components/sections/container';
 import { Reveal, RevealGroup, RevealItem } from '@/components/sections/reveal';
+import { cn } from '@/lib/utils';
 import type { PublicSection } from '@/types/sections';
 
 export function PlatformCapabilities({ section }: { section: PublicSection }) {
@@ -15,26 +18,27 @@ export function PlatformCapabilities({ section }: { section: PublicSection }) {
                     )}
                 </Reveal>
 
-                <RevealGroup className="mt-16 overflow-hidden rounded-2xl border">
-                    <div className="grid grid-cols-1 divide-y sm:grid-cols-[minmax(0,220px)_1fr] sm:divide-x sm:divide-y-0">
-                        <div className="hidden bg-muted/50 px-6 py-4 text-sm font-semibold text-foreground sm:block">
-                            Area
-                        </div>
-                        <div className="hidden bg-muted/50 px-6 py-4 text-sm font-semibold text-foreground sm:block">
-                            Functionality
-                        </div>
-
-                        {section.items.map((item) => (
-                            <RevealItem key={item.id} className="contents">
-                                <div className="bg-card px-6 py-4 text-sm font-semibold text-foreground sm:border-t sm:border-border">
+                <RevealGroup className="mx-auto mt-16 max-w-3xl overflow-hidden rounded-2xl border">
+                    {section.items.map((item, index) => (
+                        <RevealItem
+                            key={item.id}
+                            delay={index * 0.04}
+                            className={cn(
+                                'flex flex-col gap-3 border-b p-5 last:border-b-0 sm:flex-row sm:items-start sm:gap-5 sm:p-6',
+                                index % 2 === 1 && 'bg-muted/30',
+                            )}
+                        >
+                            <div className="flex items-center gap-3 sm:w-56 sm:shrink-0">
+                                <CheckCircle2 className="size-4 shrink-0 text-blue-600" />
+                                <h3 className="text-sm font-semibold text-foreground">
                                     {item.title}
-                                </div>
-                                <div className="bg-card px-6 py-4 text-sm text-muted-foreground sm:border-t sm:border-border">
-                                    {item.description}
-                                </div>
-                            </RevealItem>
-                        ))}
-                    </div>
+                                </h3>
+                            </div>
+                            <p className="text-sm leading-relaxed text-muted-foreground">
+                                {item.description}
+                            </p>
+                        </RevealItem>
+                    ))}
                 </RevealGroup>
             </Container>
         </section>

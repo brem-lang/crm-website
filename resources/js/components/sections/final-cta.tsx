@@ -35,14 +35,23 @@ export function FinalCta({
     const content = section.content ?? {};
 
     return (
-        <section id="demo" className="bg-primary py-20 text-primary-foreground sm:py-28">
+        <section id="demo" className="relative overflow-hidden bg-blue-600 py-20 text-white sm:py-28">
+            <div
+                className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_55%)]"
+                aria-hidden
+            />
+            <div
+                className="absolute -bottom-24 -left-24 -z-10 size-[380px] rounded-full bg-indigo-400/20 blur-3xl"
+                aria-hidden
+            />
+
             <Container className="grid gap-12 lg:grid-cols-2 lg:items-center">
                 <Reveal>
                     <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
-                        <p className="mt-4 max-w-md text-lg text-primary-foreground/80">
+                        <p className="mt-4 max-w-md text-lg text-white/80">
                             {section.subtitle}
                         </p>
                     )}
@@ -50,11 +59,11 @@ export function FinalCta({
 
                 <Reveal
                     delay={0.1}
-                    className="rounded-2xl bg-background p-6 text-foreground shadow-2xl sm:p-8"
+                    className="rounded-3xl bg-background p-6 text-foreground shadow-2xl sm:p-8"
                 >
                     {submitted ? (
                         <div className="flex flex-col items-center gap-3 py-10 text-center">
-                            <CheckCircle2 className="size-10 text-primary" />
+                            <CheckCircle2 className="size-10 text-blue-600" />
                             <p className="text-lg font-medium">Thanks — we got your request.</p>
                             <p className="text-sm text-muted-foreground">
                                 A member of our team will be in touch shortly.
