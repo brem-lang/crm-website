@@ -234,6 +234,7 @@ export default function SectionEdit({
                                             Enabled on the public site
                                         </Label>
                                     </div>
+                                    <InputError message={errors.is_enabled} />
 
                                     <Button type="submit" disabled={processing}>
                                         Save Section
@@ -470,6 +471,7 @@ function ItemFields({
                 />
                 <Label htmlFor="is_enabled">Enabled</Label>
             </div>
+            <InputError message={errors.is_enabled} />
         </>
     );
 }
