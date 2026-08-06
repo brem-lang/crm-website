@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { useInView } from '@/hooks/use-in-view';
 import { cn } from '@/lib/utils';
 
@@ -6,11 +6,12 @@ export function Reveal({
     children,
     delay = 0,
     className,
+    ...props
 }: {
     children: ReactNode;
     delay?: number;
     className?: string;
-}) {
+} & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children' | 'style'>) {
     const { ref, inView } = useInView<HTMLDivElement>();
 
     return (
@@ -22,6 +23,7 @@ export function Reveal({
                 className,
             )}
             style={{ transitionDelay: `${delay * 1000}ms` }}
+            {...props}
         >
             {children}
         </div>
@@ -41,9 +43,14 @@ export function RevealGroup({
 export function RevealItem({
     children,
     className,
+    ...props
 }: {
     children: ReactNode;
     className?: string;
-}) {
-    return <Reveal className={className}>{children}</Reveal>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children' | 'style'>) {
+    return (
+        <Reveal className={className} {...props}>
+            {children}
+        </Reveal>
+    );
 }

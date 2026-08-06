@@ -1,8 +1,19 @@
+import { useState } from 'react';
+
 import { Container } from '@/components/sections/container';
 import { Reveal, RevealGroup, RevealItem } from '@/components/sections/reveal';
-import type { PublicSection } from '@/types/sections';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import type { PublicSection, PublicSectionItem } from '@/types/sections';
 
 export function ProductShowcase({ section }: { section: PublicSection }) {
+    const [viewing, setViewing] = useState<PublicSectionItem | null>(null);
+
     return (
         <section id="product-showcase" className="bg-muted/30 py-20 sm:py-28">
             <Container>
@@ -19,7 +30,16 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
                     {section.items.map((item) => (
                         <RevealItem
                             key={item.id}
-                            className="group overflow-hidden rounded-xl border bg-card"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setViewing(item)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    setViewing(item);
+                                }
+                            }}
+                            className="group cursor-pointer overflow-hidden rounded-xl border bg-card text-left transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                             <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
                                 {item.image_url && (
@@ -37,6 +57,26 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
                     ))}
                 </RevealGroup>
             </Container>
+
+            <Dialog open={!!viewing} onOpenChange={(open) => !open && setViewing(null)}>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>{viewing?.title}</DialogTitle>
+                        {viewing?.description && (
+                            <DialogDescription>{viewing.description}</DialogDescription>
+                        )}
+                    </DialogHeader>
+                    {viewing?.image_url && (
+                        <div className="overflow-hidden rounded-lg border">
+                            <img
+                                src={viewing.image_url}
+                                alt={viewing.title}
+                                className="w-full object-cover"
+                            />
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </section>
     );
 }
