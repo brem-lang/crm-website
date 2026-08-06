@@ -79,6 +79,24 @@ const ITEM_FIELD_CONFIG: Record<string, ItemFieldConfig> = {
         image: false,
         statValue: true,
     },
+    platform_modules: {
+        description: true,
+        icon: true,
+        image: false,
+        statValue: false,
+    },
+    lead_pipeline: {
+        description: true,
+        icon: true,
+        image: false,
+        statValue: false,
+    },
+    platform_capabilities: {
+        description: true,
+        icon: false,
+        image: false,
+        statValue: false,
+    },
 };
 
 const DEFAULT_ITEM_FIELDS: ItemFieldConfig = {

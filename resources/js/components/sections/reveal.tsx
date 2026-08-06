@@ -43,13 +43,15 @@ export function RevealGroup({
 export function RevealItem({
     children,
     className,
+    delay,
     ...props
 }: {
     children: ReactNode;
     className?: string;
+    delay?: number;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children' | 'style'>) {
     return (
-        <Reveal className={className} {...props}>
+        <Reveal className={className} delay={delay} {...props}>
             {children}
         </Reveal>
     );

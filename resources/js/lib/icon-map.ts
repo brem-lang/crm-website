@@ -1,12 +1,19 @@
 import {
     BarChart3,
+    GitBranch,
+    Handshake,
+    Inbox,
     LineChart,
+    ListChecks,
+    Megaphone,
     PenLine,
     Phone,
+    Radar,
     RefreshCw,
     Shuffle,
     ShieldCheck,
     Sparkles,
+    Table2,
     TrendingUp,
     Users,
     Workflow,
@@ -27,6 +34,13 @@ const ICONS: Record<string, LucideIcon> = {
     'refresh-cw': RefreshCw,
     workflow: Workflow,
     'line-chart': LineChart,
+    handshake: Handshake,
+    megaphone: Megaphone,
+    inbox: Inbox,
+    radar: Radar,
+    'git-branch': GitBranch,
+    'list-checks': ListChecks,
+    'table-2': Table2,
 };
 
 export function getIcon(name?: string | null): LucideIcon | null {
