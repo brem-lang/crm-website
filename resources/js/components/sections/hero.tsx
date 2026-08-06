@@ -1,3 +1,5 @@
+import { BarChart3, TrendingUp, Users } from 'lucide-react';
+
 import { Container } from '@/components/sections/container';
 import { Button } from '@/components/ui/button';
 import type { PublicSection } from '@/types/sections';
@@ -49,20 +51,59 @@ export function Hero({ section }: { section: PublicSection }) {
                             <span className="size-2.5 rounded-full bg-destructive/60" />
                             <span className="size-2.5 rounded-full bg-yellow-500/60" />
                             <span className="size-2.5 rounded-full bg-green-500/60" />
+                            <div className="ml-3 h-5 flex-1 rounded-md bg-muted/70" />
                         </div>
+
                         <div className="grid grid-cols-3 gap-3 p-4">
                             <div className="col-span-1 space-y-3">
                                 <div className="h-3 w-3/4 rounded bg-muted" />
-                                <div className="h-20 rounded-lg bg-primary/10" />
-                                <div className="h-20 rounded-lg bg-muted" />
-                                <div className="h-20 rounded-lg bg-muted" />
+
+                                <div className="space-y-2 rounded-lg border bg-primary/5 p-3">
+                                    <Users className="size-4 text-primary" />
+                                    <p className="text-lg font-semibold text-foreground">2,481</p>
+                                    <p className="text-[11px] text-muted-foreground">Active leads</p>
+                                </div>
+
+                                <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
+                                    <TrendingUp className="size-4 text-emerald-500" />
+                                    <p className="text-lg font-semibold text-foreground">+18%</p>
+                                    <p className="text-[11px] text-muted-foreground">Conversion rate</p>
+                                </div>
+
+                                <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
+                                    <BarChart3 className="size-4 text-primary" />
+                                    <p className="text-lg font-semibold text-foreground">$92k</p>
+                                    <p className="text-[11px] text-muted-foreground">Pipeline value</p>
+                                </div>
                             </div>
+
                             <div className="col-span-2 space-y-3">
-                                <div className="h-40 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5" />
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="h-16 rounded-lg bg-muted" />
-                                    <div className="h-16 rounded-lg bg-muted" />
-                                    <div className="h-16 rounded-lg bg-muted" />
+                                <div className="flex h-40 items-end gap-2 rounded-lg border bg-linear-to-br from-primary/15 to-primary/5 p-4">
+                                    {[45, 70, 55, 85, 60, 95, 75].map((height, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex-1 rounded-t-sm bg-primary/70"
+                                            style={{ height: `${height}%` }}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="space-y-2 rounded-lg border bg-card p-3">
+                                    {['Acme Corp', 'Globex Inc.', 'Initech LLC'].map((name) => (
+                                        <div
+                                            key={name}
+                                            className="flex items-center justify-between gap-3"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span className="size-6 rounded-full bg-primary/15" />
+                                                <span className="text-xs font-medium text-foreground">
+                                                    {name}
+                                                </span>
+                                            </div>
+                                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
+                                                Won
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
