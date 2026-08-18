@@ -27,12 +27,12 @@ export function PowerfulManagement({ section }: { section: PublicSection }) {
                     )}
                 </Reveal>
 
-                <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                <RevealGroup className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
                     {section.items.map((item, index) => (
                         <RevealItem
                             key={item.id}
                             delay={index * 0.05}
-                            className="rounded-2xl border border-background/10 bg-background/5 p-5 transition-colors hover:bg-background/10"
+                            className="rounded-2xl border border-background/10 bg-background/5 p-6 transition-colors hover:bg-background/10"
                         >
                             <p className="text-2xl font-semibold tracking-tight sm:text-3xl">
                                 {item.meta?.value ?? '—'}

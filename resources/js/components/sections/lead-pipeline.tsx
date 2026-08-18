@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { Container } from '@/components/sections/container';
 import { Reveal, RevealItem } from '@/components/sections/reveal';
 import { getIcon } from '@/lib/icon-map';
@@ -27,6 +28,9 @@ export function LeadPipeline({ section }: { section: PublicSection }) {
                         {section.items.map((item, index) => {
                             const Icon = getIcon(item.icon);
                             const isEven = index % 2 === 0;
+                            const highlights = item.meta
+                                ? Object.values(item.meta).filter(Boolean)
+                                : [];
 
                             return (
                                 <RevealItem
@@ -41,29 +45,48 @@ export function LeadPipeline({ section }: { section: PublicSection }) {
                                 >
                                     <div
                                         className={cn(
-                                            'absolute top-0 flex size-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white shadow-lg shadow-blue-600/25',
+                                            'absolute top-0 flex size-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/25',
                                             'left-0 sm:left-auto',
                                             isEven ? 'sm:-right-5' : 'sm:-left-5',
                                         )}
                                     >
-                                        {index + 1}
+                                        {Icon && <Icon className="size-4" />}
                                     </div>
 
-                                    <div className="rounded-2xl border bg-card p-6">
-                                        <div className="flex items-center gap-3">
-                                            {Icon && (
-                                                <div className="inline-flex size-9 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600">
-                                                    <Icon className="size-4" />
-                                                </div>
+                                    {index < section.items.length - 1 && (
+                                        <div
+                                            className={cn(
+                                                'absolute top-10 text-blue-600/50',
+                                                'left-0 sm:left-auto',
+                                                isEven ? 'sm:-right-5' : 'sm:-left-5',
                                             )}
-                                            <h3 className="text-base font-semibold text-foreground">
-                                                {item.title}
-                                            </h3>
+                                            aria-hidden
+                                        >
+                                            <ChevronDown className="size-4" />
                                         </div>
+                                    )}
+
+                                    <div className="rounded-2xl border bg-card p-6">
+                                        <h3 className="text-base font-semibold text-foreground">
+                                            {item.title}
+                                        </h3>
                                         {item.description && (
-                                            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                                            <p className="mt-3 text-sm leading-7 text-muted-foreground">
                                                 {item.description}
                                             </p>
+                                        )}
+                                        {highlights.length > 0 && (
+                                            <ul className="mt-3 space-y-1.5">
+                                                {highlights.map((highlight) => (
+                                                    <li
+                                                        key={highlight}
+                                                        className="flex items-start gap-2 text-sm leading-7 text-muted-foreground"
+                                                    >
+                                                        <span className="mt-2.5 size-1 shrink-0 rounded-full bg-blue-600/60" />
+                                                        {highlight}
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         )}
                                     </div>
                                 </RevealItem>

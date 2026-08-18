@@ -1,5 +1,6 @@
 import { Container } from '@/components/sections/container';
 import { Reveal, RevealGroup, RevealItem } from '@/components/sections/reveal';
+import { cn } from '@/lib/utils';
 import type { PublicSection } from '@/types/sections';
 
 export function Industries({ section }: { section: PublicSection }) {
@@ -20,7 +21,11 @@ export function Industries({ section }: { section: PublicSection }) {
                         <RevealItem
                             key={item.id}
                             delay={index * 0.05}
-                            className="group relative flex flex-col gap-2 bg-card p-6 transition-colors hover:bg-blue-600/5"
+                            className={cn(
+                                'group relative flex flex-col gap-2 bg-card p-6 transition-colors hover:bg-blue-600/5',
+                                index === section.items.length - 1 &&
+                                    'sm:col-span-2 lg:col-span-1',
+                            )}
                         >
                             <span className="text-xs font-semibold text-blue-600">
                                 {String(index + 1).padStart(2, '0')}

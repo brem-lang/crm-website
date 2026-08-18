@@ -74,6 +74,7 @@ export function FinalCta({
                             {...demoRequests.store.form()}
                             resetOnSuccess
                             options={{ preserveScroll: true }}
+                            noValidate
                             className="grid gap-4"
                         >
                             {({ processing, errors }) => (

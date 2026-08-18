@@ -54,8 +54,7 @@ type ItemFieldConfig = {
 };
 
 const ITEM_FIELD_CONFIG: Record<string, ItemFieldConfig> = {
-    why_us: { description: true, icon: true, image: false, statValue: false },
-    ai_automation: {
+    platform_features: {
         description: true,
         icon: true,
         image: false,
@@ -79,21 +78,15 @@ const ITEM_FIELD_CONFIG: Record<string, ItemFieldConfig> = {
         image: false,
         statValue: true,
     },
-    platform_modules: {
-        description: true,
-        icon: true,
-        image: false,
-        statValue: false,
-    },
     lead_pipeline: {
         description: true,
         icon: true,
         image: false,
         statValue: false,
     },
-    platform_capabilities: {
+    social_proof: {
         description: true,
-        icon: false,
+        icon: true,
         image: false,
         statValue: false,
     },

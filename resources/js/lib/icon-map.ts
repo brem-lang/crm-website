@@ -1,15 +1,18 @@
 import {
+    BadgeCheck,
     BarChart3,
     GitBranch,
     Handshake,
     Inbox,
     LineChart,
     ListChecks,
+    Lock,
     Megaphone,
     PenLine,
     Phone,
     Radar,
     RefreshCw,
+    Server,
     Shuffle,
     ShieldCheck,
     Sparkles,
@@ -41,6 +44,9 @@ const ICONS: Record<string, LucideIcon> = {
     'git-branch': GitBranch,
     'list-checks': ListChecks,
     'table-2': Table2,
+    lock: Lock,
+    'badge-check': BadgeCheck,
+    server: Server,
 };
 
 export function getIcon(name?: string | null): LucideIcon | null {

@@ -4,9 +4,8 @@ import { Container } from '@/components/sections/container';
 import type { SiteSettings } from '@/types/sections';
 
 const NAV_LINKS = [
-    { href: '#why-us', label: 'Features' },
+    { href: '#platform-features', label: 'Features' },
     { href: '#product-showcase', label: 'Product' },
-    { href: '#platform', label: 'Platform' },
     { href: '#pipeline', label: 'Pipeline' },
     { href: '#industries', label: 'Industries' },
 ];
