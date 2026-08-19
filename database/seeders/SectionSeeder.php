@@ -99,9 +99,7 @@ class SectionSeeder extends Seeder
                     ['title' => 'Customer Profile', 'description' => 'The full customer story in one place.'],
                     ['title' => 'Sales Pipeline', 'description' => 'Deals, visualized stage by stage.'],
                     ['title' => 'Reports', 'description' => 'Performance insights at a glance.'],
-                    ['title' => 'Call Center', 'description' => 'Every call, logged and connected.'],
-                    ['title' => 'Automation', 'description' => 'Routine work, handled automatically.'],
-                    ['title' => 'Team Performance', 'description' => 'See how every agent is performing.'],
+                    ['title' => 'Roles & Permissions', 'description' => 'Granular access control for every role on your team.'],
                 ],
             ],
 

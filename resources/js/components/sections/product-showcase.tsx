@@ -27,7 +27,7 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
                     )}
                 </Reveal>
 
-                <RevealGroup className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <RevealGroup className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {section.items.map((item, index) => (
                         <RevealItem
                             key={item.id}
