@@ -432,7 +432,7 @@ export default function DemoRequestsIndex({
                 )}
 
                 <Card>
-                    <CardContent className="flex flex-wrap items-end gap-3 pt-6">
+                    <CardContent className="flex flex-wrap items-end gap-3">
                         <div className="grid min-w-55 flex-1 gap-1.5">
                             <label className="text-sm text-muted-foreground">Search</label>
                             <div className="relative">

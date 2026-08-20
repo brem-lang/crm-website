@@ -243,8 +243,8 @@ export default function VisitorsIndex({
                 </div>
 
                 <Card>
-                    <CardContent className="flex flex-wrap items-end gap-3 pt-6">
-                        <div className="grid min-w-40 gap-1.5">
+                    <CardContent className="flex flex-wrap items-end gap-3">
+                        <div className="grid min-w-40 flex-1 gap-1.5">
                             <label className="text-sm text-muted-foreground">
                                 Country
                             </label>
