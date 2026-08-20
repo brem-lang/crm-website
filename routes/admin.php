@@ -26,10 +26,14 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.'
     Route::get('demo-requests/export', [DemoRequestController::class, 'export'])->name('demo-requests.export');
     Route::patch('demo-requests/bulk', [DemoRequestController::class, 'bulkUpdate'])->name('demo-requests.bulk-update');
     Route::delete('demo-requests/bulk', [DemoRequestController::class, 'bulkDestroy'])->name('demo-requests.bulk-destroy');
+    Route::post('demo-requests/restore/bulk', [DemoRequestController::class, 'bulkRestore'])->name('demo-requests.bulk-restore');
+    Route::delete('demo-requests/force/bulk', [DemoRequestController::class, 'bulkForceDestroy'])->name('demo-requests.bulk-force-destroy');
     Route::get('demo-requests/{demoRequest}', [DemoRequestController::class, 'show'])->name('demo-requests.show');
     Route::patch('demo-requests/{demoRequest}', [DemoRequestController::class, 'update'])->name('demo-requests.update');
     Route::delete('demo-requests/{demoRequest}', [DemoRequestController::class, 'destroy'])->name('demo-requests.destroy');
     Route::post('demo-requests/{demoRequest}/send-email', [DemoRequestController::class, 'sendEmail'])->name('demo-requests.send-email');
+    Route::post('demo-requests/{demoRequest}/restore', [DemoRequestController::class, 'restore'])->name('demo-requests.restore')->withTrashed();
+    Route::delete('demo-requests/{demoRequest}/force', [DemoRequestController::class, 'forceDestroy'])->name('demo-requests.force-destroy')->withTrashed();
 
     Route::get('site-settings', [SiteSettingController::class, 'edit'])->name('site-settings.edit');
     Route::patch('site-settings', [SiteSettingController::class, 'update'])->name('site-settings.update');

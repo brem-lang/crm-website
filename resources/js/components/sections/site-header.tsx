@@ -31,7 +31,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                         <img
                             src={settings.logo_url}
                             alt={settings.site_title ?? ''}
-                            className="h-7"
+                            className="h-12"
                         />
                     ) : (
                         <span className="text-base">

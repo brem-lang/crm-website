@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,6 +36,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $settings = SiteSetting::current();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -42,6 +45,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'siteLogoUrl' => $settings->logo_url,
+            'siteFaviconUrl' => $settings->favicon_url,
         ];
     }
 }

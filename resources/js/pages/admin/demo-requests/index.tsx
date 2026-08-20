@@ -12,6 +12,7 @@ import {
     MessageSquareText,
     MoreHorizontal,
     Phone,
+    RotateCcw,
     Search,
     Send,
     Trash2,
@@ -81,6 +82,7 @@ type DemoRequest = {
     message: string | null;
     status: string;
     created_at: string;
+    deleted_at: string | null;
     sent_emails: SentEmail[];
 };
 
@@ -90,6 +92,7 @@ type Counts = {
     contacted: number;
     converted: number;
     closed: number;
+    trashed: number;
 };
 
 const STATUS_OPTIONS = ['new', 'contacted', 'converted', 'closed'] as const;
@@ -134,6 +137,7 @@ export default function DemoRequestsIndex({
         to?: string;
         search?: string;
         per_page?: number | string;
+        trashed?: string;
     };
     counts: Counts;
 }) {
@@ -141,6 +145,10 @@ export default function DemoRequestsIndex({
     const [viewing, setViewing] = useState<DemoRequest | null>(null);
     const [pendingDelete, setPendingDelete] = useState<DemoRequest[] | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [pendingForceDelete, setPendingForceDelete] = useState<DemoRequest[] | null>(null);
+    const [forceDeleting, setForceDeleting] = useState(false);
+    const [restoringId, setRestoringId] = useState<number | null>(null);
+    const [bulkRestoring, setBulkRestoring] = useState(false);
     const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [bulkUpdating, setBulkUpdating] = useState(false);
@@ -148,6 +156,8 @@ export default function DemoRequestsIndex({
     const [emailForm, setEmailForm] = useState({ url: '', email: '', password: '' });
     const [emailErrors, setEmailErrors] = useState<Record<string, string>>({});
     const [sendingEmail, setSendingEmail] = useState(false);
+
+    const viewingTrashed = filters.trashed === 'only';
 
     const pageIds = useMemo(() => paginated.data.map((r) => r.id), [paginated.data]);
     const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
@@ -241,6 +251,66 @@ export default function DemoRequestsIndex({
         }
     }
 
+    function restoreOne(request: DemoRequest) {
+        setRestoringId(request.id);
+        router.post(demoRequests.restore(request).url, {}, {
+            preserveScroll: true,
+            onFinish: () => setRestoringId(null),
+        });
+    }
+
+    function restoreSelected() {
+        if (selectedRequests.length === 0) {
+            return;
+        }
+
+        setBulkRestoring(true);
+        router.post(
+            demoRequests.bulkRestore().url,
+            { ids: selectedRequests.map((r) => r.id) },
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setBulkRestoring(false);
+                    setSelectedIds(new Set());
+                },
+            },
+        );
+    }
+
+    function confirmForceDelete() {
+        if (!pendingForceDelete || pendingForceDelete.length === 0) {
+            return;
+        }
+
+        setForceDeleting(true);
+
+        const ids = pendingForceDelete.map((r) => r.id);
+        const onFinish = () => {
+            setForceDeleting(false);
+            setPendingForceDelete(null);
+            setSelectedIds((current) => {
+                const next = new Set(current);
+                ids.forEach((id) => next.delete(id));
+
+                return next;
+            });
+        };
+
+        if (pendingForceDelete.length === 1) {
+            router.delete(demoRequests.forceDestroy(pendingForceDelete[0]).url, {
+                preserveScroll: true,
+                onFinish,
+            });
+        } else {
+            router.delete(demoRequests.bulkForceDestroy().url, {
+                data: { ids },
+                preserveScroll: true,
+                onFinish,
+            });
+        }
+    }
+
     function openSendEmail(request: DemoRequest) {
         setSendingEmailTo(request);
         setEmailForm({ url: '', email: '', password: '' });
@@ -286,6 +356,20 @@ export default function DemoRequestsIndex({
         { key: 'closed', label: 'Closed', filterValue: 'closed' },
     ];
 
+    function viewTrash() {
+        setSelectedIds(new Set());
+        router.get(
+            index().url,
+            { trashed: 'only' },
+            { preserveState: true, preserveScroll: true },
+        );
+    }
+
+    function viewActive() {
+        setSelectedIds(new Set());
+        router.get(index().url, {}, { preserveState: true, preserveScroll: true });
+    }
+
     return (
         <>
             <Head title="Demo Requests" />
@@ -293,18 +377,37 @@ export default function DemoRequestsIndex({
             <div className="space-y-6 p-4">
                 <div className="flex flex-wrap items-center justify-between [&>header]:mb-0">
                     <Heading
-                        title="Demo Requests"
-                        description="Review submissions and follow up with prospects."
+                        title={viewingTrashed ? 'Trashed Demo Requests' : 'Demo Requests'}
+                        description={
+                            viewingTrashed
+                                ? 'Restore or permanently delete trashed submissions.'
+                                : 'Review submissions and follow up with prospects.'
+                        }
                     />
 
-                    <Button variant="outline" asChild>
-                        <a href={demoRequests.export().url}>
-                            <Download className="size-4" />
-                            Export CSV
-                        </a>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {viewingTrashed ? (
+                            <Button variant="outline" onClick={viewActive}>
+                                Back to Demo Requests
+                            </Button>
+                        ) : (
+                            <>
+                                <Button variant="outline" onClick={viewTrash}>
+                                    <Trash2 className="size-4" />
+                                    Trash ({counts.trashed})
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <a href={demoRequests.export().url}>
+                                        <Download className="size-4" />
+                                        Export CSV
+                                    </a>
+                                </Button>
+                            </>
+                        )}
+                    </div>
                 </div>
 
+                {!viewingTrashed && (
                 <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
                     {statCards.map((card) => {
                         const active = card.filterValue
@@ -326,6 +429,7 @@ export default function DemoRequestsIndex({
                         );
                     })}
                 </div>
+                )}
 
                 <Card>
                     <CardContent className="flex flex-wrap items-end gap-3 pt-6">
@@ -348,27 +452,29 @@ export default function DemoRequestsIndex({
                             </div>
                         </div>
 
-                        <div className="grid gap-1.5">
-                            <label className="text-sm text-muted-foreground">Status</label>
-                            <Select
-                                value={filters.status ?? 'all'}
-                                onValueChange={(value) =>
-                                    updateFilters({ status: value === 'all' ? undefined : value })
-                                }
-                            >
-                                <SelectTrigger className="w-40">
-                                    <SelectValue placeholder="All statuses" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All statuses</SelectItem>
-                                    {STATUS_OPTIONS.map((status) => (
-                                        <SelectItem key={status} value={status} className="capitalize">
-                                            {status}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        {!viewingTrashed && (
+                            <div className="grid gap-1.5">
+                                <label className="text-sm text-muted-foreground">Status</label>
+                                <Select
+                                    value={filters.status ?? 'all'}
+                                    onValueChange={(value) =>
+                                        updateFilters({ status: value === 'all' ? undefined : value })
+                                    }
+                                >
+                                    <SelectTrigger className="w-40">
+                                        <SelectValue placeholder="All statuses" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All statuses</SelectItem>
+                                        {STATUS_OPTIONS.map((status) => (
+                                            <SelectItem key={status} value={status} className="capitalize">
+                                                {status}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
 
                         <div className="grid gap-1.5">
                             <label className="text-sm text-muted-foreground">From</label>
@@ -395,7 +501,11 @@ export default function DemoRequestsIndex({
                                 variant="ghost"
                                 onClick={() => {
                                     setSearch('');
-                                    router.get(index().url, {}, { preserveState: true, preserveScroll: true });
+                                    router.get(
+                                        index().url,
+                                        viewingTrashed ? { trashed: 'only' } : {},
+                                        { preserveState: true, preserveScroll: true },
+                                    );
                                 }}
                             >
                                 Clear filters
@@ -410,29 +520,58 @@ export default function DemoRequestsIndex({
                             {selectedRequests.length} selected
                         </span>
 
-                        <Select onValueChange={bulkUpdateStatus} disabled={bulkUpdating}>
-                            <SelectTrigger className="w-44">
-                                <SelectValue placeholder="Mark as…" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {STATUS_OPTIONS.map((status) => (
-                                    <SelectItem key={status} value={status} className="capitalize">
-                                        {status}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {viewingTrashed ? (
+                            <>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={bulkRestoring}
+                                    onClick={restoreSelected}
+                                >
+                                    {bulkRestoring ? (
+                                        <Loader2 className="size-4 animate-spin" />
+                                    ) : (
+                                        <RotateCcw className="size-4" />
+                                    )}
+                                    Restore
+                                </Button>
 
-                        {bulkUpdating && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => setPendingForceDelete(selectedRequests)}
+                                >
+                                    <Trash2 className="size-4" />
+                                    Delete permanently
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Select onValueChange={bulkUpdateStatus} disabled={bulkUpdating}>
+                                    <SelectTrigger className="w-44">
+                                        <SelectValue placeholder="Mark as…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {STATUS_OPTIONS.map((status) => (
+                                            <SelectItem key={status} value={status} className="capitalize">
+                                                {status}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
 
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => setPendingDelete(selectedRequests)}
-                        >
-                            <Trash2 className="size-4" />
-                            Delete
-                        </Button>
+                                {bulkUpdating && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => setPendingDelete(selectedRequests)}
+                                >
+                                    <Trash2 className="size-4" />
+                                    Delete
+                                </Button>
+                            </>
+                        )}
 
                         <Button
                             variant="ghost"
@@ -529,34 +668,57 @@ export default function DemoRequestsIndex({
                                                     <Eye className="size-4" />
                                                     View details
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => openSendEmail(request)}>
-                                                    <Send className="size-4" />
-                                                    Send email
-                                                </DropdownMenuItem>
 
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuLabel>Mark as</DropdownMenuLabel>
-                                                {STATUS_OPTIONS.filter(
-                                                    (status) => status !== request.status,
-                                                ).map((status) => (
-                                                    <DropdownMenuItem
-                                                        key={status}
-                                                        className="capitalize"
-                                                        onClick={() => updateStatus(request, status)}
-                                                    >
-                                                        <CheckCircle2 className="size-4" />
-                                                        {status}
-                                                    </DropdownMenuItem>
-                                                ))}
+                                                {viewingTrashed ? (
+                                                    <>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem
+                                                            disabled={restoringId === request.id}
+                                                            onClick={() => restoreOne(request)}
+                                                        >
+                                                            <RotateCcw className="size-4" />
+                                                            Restore
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            variant="destructive"
+                                                            onClick={() => setPendingForceDelete([request])}
+                                                        >
+                                                            <Trash2 className="size-4" />
+                                                            Delete permanently
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <DropdownMenuItem onClick={() => openSendEmail(request)}>
+                                                            <Send className="size-4" />
+                                                            Send email
+                                                        </DropdownMenuItem>
 
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    variant="destructive"
-                                                    onClick={() => setPendingDelete([request])}
-                                                >
-                                                    <Trash2 className="size-4" />
-                                                    Delete
-                                                </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuLabel>Mark as</DropdownMenuLabel>
+                                                        {STATUS_OPTIONS.filter(
+                                                            (status) => status !== request.status,
+                                                        ).map((status) => (
+                                                            <DropdownMenuItem
+                                                                key={status}
+                                                                className="capitalize"
+                                                                onClick={() => updateStatus(request, status)}
+                                                            >
+                                                                <CheckCircle2 className="size-4" />
+                                                                {status}
+                                                            </DropdownMenuItem>
+                                                        ))}
+
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem
+                                                            variant="destructive"
+                                                            onClick={() => setPendingDelete([request])}
+                                                        >
+                                                            <Trash2 className="size-4" />
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -568,7 +730,7 @@ export default function DemoRequestsIndex({
                                     <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                                         <div className="flex flex-col items-center gap-2">
                                             <XCircle className="size-6 text-muted-foreground/50" />
-                                            No demo requests found.
+                                            {viewingTrashed ? 'No trashed demo requests.' : 'No demo requests found.'}
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -610,21 +772,23 @@ export default function DemoRequestsIndex({
                                         <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
                                     )}
                                 </div>
-                                <Select
-                                    value={viewing.status}
-                                    onValueChange={(status) => updateStatus(viewing, status)}
-                                >
-                                    <SelectTrigger className="w-40">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {STATUS_OPTIONS.map((status) => (
-                                            <SelectItem key={status} value={status} className="capitalize">
-                                                {status}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                {!viewingTrashed && (
+                                    <Select
+                                        value={viewing.status}
+                                        onValueChange={(status) => updateStatus(viewing, status)}
+                                    >
+                                        <SelectTrigger className="w-40">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {STATUS_OPTIONS.map((status) => (
+                                                <SelectItem key={status} value={status} className="capitalize">
+                                                    {status}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
                             </div>
 
                             <dl className="grid grid-cols-2 gap-4 text-sm">
@@ -708,26 +872,54 @@ export default function DemoRequestsIndex({
                             </p>
 
                             <DialogFooter>
-                                <Button
-                                    variant="destructive"
-                                    onClick={() => {
-                                        setPendingDelete([viewing]);
-                                        setViewing(null);
-                                    }}
-                                >
-                                    <Trash2 className="size-4" />
-                                    Delete
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        openSendEmail(viewing);
-                                        setViewing(null);
-                                    }}
-                                >
-                                    <Send className="size-4" />
-                                    Send email
-                                </Button>
+                                {viewingTrashed ? (
+                                    <>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => {
+                                                setPendingForceDelete([viewing]);
+                                                setViewing(null);
+                                            }}
+                                        >
+                                            <Trash2 className="size-4" />
+                                            Delete permanently
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            disabled={restoringId === viewing.id}
+                                            onClick={() => {
+                                                restoreOne(viewing);
+                                                setViewing(null);
+                                            }}
+                                        >
+                                            <RotateCcw className="size-4" />
+                                            Restore
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => {
+                                                setPendingDelete([viewing]);
+                                                setViewing(null);
+                                            }}
+                                        >
+                                            <Trash2 className="size-4" />
+                                            Delete
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => {
+                                                openSendEmail(viewing);
+                                                setViewing(null);
+                                            }}
+                                        >
+                                            <Send className="size-4" />
+                                            Send email
+                                        </Button>
+                                    </>
+                                )}
                                 <Button variant="outline" onClick={() => setViewing(null)}>
                                     Close
                                 </Button>
@@ -833,26 +1025,26 @@ export default function DemoRequestsIndex({
                     <DialogHeader>
                         <DialogTitle>
                             {pendingDelete && pendingDelete.length > 1
-                                ? `Delete ${pendingDelete.length} demo requests?`
-                                : 'Delete demo request?'}
+                                ? `Move ${pendingDelete.length} demo requests to trash?`
+                                : 'Move demo request to trash?'}
                         </DialogTitle>
                         <DialogDescription>
                             {pendingDelete && pendingDelete.length > 1 ? (
                                 <>
-                                    This will permanently remove{' '}
+                                    This will move{' '}
                                     <span className="font-medium text-foreground">
                                         {pendingDelete.length} demo requests
                                     </span>{' '}
-                                    from AlphaMasterCRM. This action cannot be undone.
+                                    to the trash. You can restore them later from the Trash view.
                                 </>
                             ) : (
                                 <>
-                                    This will permanently remove{' '}
+                                    This will move{' '}
                                     <span className="font-medium text-foreground">
                                         {pendingDelete?.[0]?.name}
                                     </span>
-                                    {pendingDelete?.[0]?.company ? ` (${pendingDelete[0].company})` : ''} from
-                                    AlphaMasterCRM. This action cannot be undone.
+                                    {pendingDelete?.[0]?.company ? ` (${pendingDelete[0].company})` : ''} to the
+                                    trash. You can restore it later from the Trash view.
                                 </>
                             )}
                         </DialogDescription>
@@ -864,6 +1056,56 @@ export default function DemoRequestsIndex({
                         <Button variant="destructive" onClick={confirmDelete} disabled={deleting}>
                             {deleting && <Loader2 className="size-4 animate-spin" />}
                             Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={!!pendingForceDelete}
+                onOpenChange={(open) => !open && setPendingForceDelete(null)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {pendingForceDelete && pendingForceDelete.length > 1
+                                ? `Permanently delete ${pendingForceDelete.length} demo requests?`
+                                : 'Permanently delete demo request?'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {pendingForceDelete && pendingForceDelete.length > 1 ? (
+                                <>
+                                    This will permanently remove{' '}
+                                    <span className="font-medium text-foreground">
+                                        {pendingForceDelete.length} demo requests
+                                    </span>{' '}
+                                    from AlphaMasterCRM. This action cannot be undone.
+                                </>
+                            ) : (
+                                <>
+                                    This will permanently remove{' '}
+                                    <span className="font-medium text-foreground">
+                                        {pendingForceDelete?.[0]?.name}
+                                    </span>
+                                    {pendingForceDelete?.[0]?.company
+                                        ? ` (${pendingForceDelete[0].company})`
+                                        : ''}{' '}
+                                    from AlphaMasterCRM. This action cannot be undone.
+                                </>
+                            )}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setPendingForceDelete(null)}
+                            disabled={forceDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmForceDelete} disabled={forceDeleting}>
+                            {forceDeleting && <Loader2 className="size-4 animate-spin" />}
+                            Delete permanently
                         </Button>
                     </DialogFooter>
                 </DialogContent>

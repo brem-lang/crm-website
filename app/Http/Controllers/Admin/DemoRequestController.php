@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkDeleteDemoRequestsRequest;
+use App\Http\Requests\Admin\BulkForceDeleteDemoRequestsRequest;
+use App\Http\Requests\Admin\BulkRestoreDemoRequestsRequest;
 use App\Http\Requests\Admin\BulkUpdateDemoRequestStatusRequest;
 use App\Http\Requests\Admin\SendDemoRequestCredentialsRequest;
 use App\Http\Requests\Admin\UpdateDemoRequestStatusRequest;
@@ -33,6 +35,10 @@ class DemoRequestController extends Controller
             ->with(['sentEmails' => fn ($q) => $q->latest()])
             ->latest();
 
+        if ($request->string('trashed')->value() === 'only') {
+            $query->onlyTrashed();
+        }
+
         if ($status = $request->string('status')->value()) {
             $query->where('status', $status);
         }
@@ -55,13 +61,14 @@ class DemoRequestController extends Controller
 
         return Inertia::render('admin/demo-requests/index', [
             'demoRequests' => $query->paginate($perPage)->withQueryString(),
-            'filters' => $request->only(['status', 'from', 'to', 'search', 'per_page']),
+            'filters' => $request->only(['status', 'from', 'to', 'search', 'per_page', 'trashed']),
             'counts' => [
                 'all' => DemoRequest::query()->count(),
                 'new' => DemoRequest::query()->where('status', DemoRequest::STATUS_NEW)->count(),
                 'contacted' => DemoRequest::query()->where('status', DemoRequest::STATUS_CONTACTED)->count(),
                 'converted' => DemoRequest::query()->where('status', DemoRequest::STATUS_CONVERTED)->count(),
                 'closed' => DemoRequest::query()->where('status', DemoRequest::STATUS_CLOSED)->count(),
+                'trashed' => DemoRequest::onlyTrashed()->count(),
             ],
         ]);
     }
@@ -89,13 +96,37 @@ class DemoRequestController extends Controller
     }
 
     /**
-     * Delete a demo request.
+     * Move a demo request to the trash.
      */
     public function destroy(DemoRequest $demoRequest): RedirectResponse
     {
         $demoRequest->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Demo request deleted.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Demo request moved to trash.']);
+
+        return back();
+    }
+
+    /**
+     * Restore a trashed demo request.
+     */
+    public function restore(DemoRequest $demoRequest): RedirectResponse
+    {
+        $demoRequest->restore();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Demo request restored.']);
+
+        return back();
+    }
+
+    /**
+     * Permanently delete a trashed demo request.
+     */
+    public function forceDestroy(DemoRequest $demoRequest): RedirectResponse
+    {
+        $demoRequest->forceDelete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Demo request permanently deleted.']);
 
         return back();
     }
@@ -137,7 +168,7 @@ class DemoRequestController extends Controller
     }
 
     /**
-     * Delete multiple demo requests at once.
+     * Move multiple demo requests to the trash at once.
      */
     public function bulkDestroy(BulkDeleteDemoRequestsRequest $request): RedirectResponse
     {
@@ -145,7 +176,35 @@ class DemoRequestController extends Controller
             ->whereIn('id', $request->validated('ids'))
             ->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "Deleted {$count} demo request(s)."]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Moved {$count} demo request(s) to trash."]);
+
+        return back();
+    }
+
+    /**
+     * Restore multiple trashed demo requests at once.
+     */
+    public function bulkRestore(BulkRestoreDemoRequestsRequest $request): RedirectResponse
+    {
+        $count = DemoRequest::onlyTrashed()
+            ->whereIn('id', $request->validated('ids'))
+            ->restore();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Restored {$count} demo request(s)."]);
+
+        return back();
+    }
+
+    /**
+     * Permanently delete multiple trashed demo requests at once.
+     */
+    public function bulkForceDestroy(BulkForceDeleteDemoRequestsRequest $request): RedirectResponse
+    {
+        $count = DemoRequest::onlyTrashed()
+            ->whereIn('id', $request->validated('ids'))
+            ->forceDelete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Permanently deleted {$count} demo request(s)."]);
 
         return back();
     }

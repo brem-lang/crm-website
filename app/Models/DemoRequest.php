@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -21,12 +22,15 @@ use Illuminate\Support\Carbon;
  * @property string $status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  */
 #[Fillable(['name', 'company', 'email', 'phone', 'country', 'business_type', 'message', 'status'])]
 class DemoRequest extends Model
 {
     /** @use HasFactory<DemoRequestFactory> */
     use HasFactory;
+
+    use SoftDeletes;
 
     public const STATUS_NEW = 'new';
 

@@ -30,9 +30,12 @@
             }
         </style>
 
-        @php $__favicon = \App\Models\SiteSetting::current()->favicon_url; @endphp
+        @php
+            $__settings = \App\Models\SiteSetting::current();
+            $__favicon = $__settings->favicon_url;
+        @endphp
         @if ($__favicon)
-            <link rel="icon" href="{{ $__favicon }}">
+            <link rel="icon" href="{{ $__favicon }}?v={{ $__settings->updated_at?->timestamp }}">
         @else
             <link rel="icon" href="/favicon.ico" sizes="any">
             <link rel="icon" href="/favicon.svg" type="image/svg+xml">
