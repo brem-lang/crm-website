@@ -1,7 +1,6 @@
-import { ArrowRight, BarChart3, Sparkles, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, BarChart3, TrendingUp, Users } from 'lucide-react';
 
 import { Container } from '@/components/sections/container';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { PublicSection } from '@/types/sections';
 
@@ -25,11 +24,6 @@ export function Hero({ section }: { section: PublicSection }) {
 
             <Container className="grid items-center gap-16 lg:grid-cols-2">
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <Badge className="gap-1.5 border-blue-600/20 bg-blue-600/10 px-3 py-1 text-blue-700 dark:text-blue-400">
-                        <Sparkles className="size-3.5" />
-                        Built for regulated sales teams
-                    </Badge>
-
                     <h1 className="mt-6 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
                         {section.title}
                     </h1>
