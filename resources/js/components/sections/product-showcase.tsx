@@ -19,7 +19,7 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
         <section id="product-showcase" className="bg-muted/30 py-20 sm:py-28">
             <Container>
                 <Reveal className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
@@ -41,9 +41,9 @@ export function ProductShowcase({ section }: { section: PublicSection }) {
                                     setViewing(item);
                                 }
                             }}
-                            className="group cursor-pointer overflow-hidden rounded-2xl border bg-card text-left transition-all hover:-translate-y-1 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                            className="group cursor-pointer overflow-hidden rounded-2xl border bg-card text-left transition-all hover:-translate-y-1 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                         >
-                            <div className="relative aspect-video overflow-hidden bg-linear-to-br from-blue-600/15 via-blue-600/5 to-transparent">
+                            <div className="relative aspect-video overflow-hidden bg-linear-to-br from-indigo-600/15 via-indigo-600/5 to-transparent">
                                 {item.image_url && (
                                     <img
                                         src={item.image_url}

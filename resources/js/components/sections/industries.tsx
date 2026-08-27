@@ -8,7 +8,7 @@ export function Industries({ section }: { section: PublicSection }) {
         <section id="industries" className="py-20 sm:py-28">
             <Container>
                 <Reveal className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
@@ -22,12 +22,12 @@ export function Industries({ section }: { section: PublicSection }) {
                             key={item.id}
                             delay={index * 0.05}
                             className={cn(
-                                'group relative flex flex-col gap-2 bg-card p-6 transition-colors hover:bg-blue-600/5',
+                                'group relative flex flex-col gap-2 bg-card p-6 transition-colors hover:bg-indigo-600/5',
                                 index === section.items.length - 1 &&
                                     'sm:col-span-2 lg:col-span-1',
                             )}
                         >
-                            <span className="text-xs font-semibold text-blue-600">
+                            <span className="text-xs font-semibold text-indigo-500">
                                 {String(index + 1).padStart(2, '0')}
                             </span>
                             <h3 className="font-medium text-foreground">{item.title}</h3>

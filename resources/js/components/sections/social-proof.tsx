@@ -20,7 +20,7 @@ export function SocialProof({ section }: { section: PublicSection }) {
         <section className="py-20 sm:py-28">
             <Container>
                 <Reveal className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
@@ -91,7 +91,7 @@ export function SocialProof({ section }: { section: PublicSection }) {
                                 <RevealItem key={badge.id} delay={index * 0.05}>
                                     <span className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-medium text-foreground">
                                         {Icon && (
-                                            <Icon className="size-4 text-blue-600" />
+                                            <Icon className="size-4 text-indigo-500" />
                                         )}
                                         {badge.title}
                                     </span>

@@ -35,7 +35,7 @@ export function FinalCta({
     const content = section.content ?? {};
 
     return (
-        <section id="demo" className="relative overflow-hidden bg-blue-600 py-20 text-white sm:py-28">
+        <section id="demo" className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-indigo-800 py-20 text-white sm:py-28">
             <div
                 className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_55%)]"
                 aria-hidden
@@ -47,7 +47,7 @@ export function FinalCta({
 
             <Container className="grid gap-12 lg:grid-cols-2 lg:items-center">
                 <Reveal>
-                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
@@ -63,7 +63,7 @@ export function FinalCta({
                 >
                     {submitted ? (
                         <div className="flex flex-col items-center gap-3 py-10 text-center">
-                            <CheckCircle2 className="size-10 text-blue-600" />
+                            <CheckCircle2 className="size-10 text-indigo-500" />
                             <p className="text-lg font-medium">Thanks — we got your request.</p>
                             <p className="text-sm text-muted-foreground">
                                 A member of our team will be in touch shortly.
@@ -175,8 +175,9 @@ export function FinalCta({
                                     <Button
                                         type="submit"
                                         size="lg"
+                                        variant="gradient"
                                         disabled={processing}
-                                        className="mt-2 bg-blue-600 text-white hover:bg-blue-700"
+                                        className="mt-2"
                                     >
                                         {content.submit_button_text ?? 'Request My Demo'}
                                     </Button>

@@ -41,10 +41,17 @@ class SectionSeeder extends Seeder
                 'title' => 'The All-in-One CRM Built for Forex, Crypto & Sales Teams',
                 'subtitle' => 'Manage leads, close deals, and scale your sales operation — purpose-built for Forex/CFD brokers, crypto companies, call centers, lead generation companies, and sales teams.',
                 'content' => [
+                    'eyebrow_text' => 'v1.0 · Now available',
                     'primary_button_text' => 'Book a Demo',
                     'primary_button_url' => '#demo',
                     'secondary_button_text' => 'Explore the CRM',
                     'secondary_button_url' => '#product-showcase',
+                ],
+                'items' => [
+                    ['title' => 'Live dashboard refresh', 'meta' => ['value' => '<300ms']],
+                    ['title' => 'CRM & CPA integrations', 'meta' => ['value' => '15+']],
+                    ['title' => 'Uptime SLA', 'meta' => ['value' => '99.9%']],
+                    ['title' => 'Support', 'meta' => ['value' => '24/7']],
                 ],
             ],
 
@@ -236,6 +243,60 @@ class SectionSeeder extends Seeder
                     ['title' => 'GDPR Ready', 'icon' => 'shield-check', 'meta' => ['kind' => 'badge']],
                     ['title' => '256-bit Encryption', 'icon' => 'lock', 'meta' => ['kind' => 'badge']],
                     ['title' => '99.9% Uptime SLA', 'icon' => 'server', 'meta' => ['kind' => 'badge']],
+                ],
+            ],
+
+            'roi_calculator' => [
+                'key' => 'roi_calculator',
+                'title' => 'See What Better Lead Management Is Worth',
+                'subtitle' => 'Plug in your numbers and see the revenue a higher close rate puts back in your pipeline.',
+                'content' => [],
+            ],
+
+            'pricing' => [
+                'key' => 'pricing',
+                'title' => 'Simple, Transparent Pricing',
+                'subtitle' => 'One plan, everything included. No tiers, no add-on fees.',
+                'content' => [],
+                'items' => [
+                    [
+                        'title' => 'AlphaMasterCRM',
+                        'description' => 'Unlimited agents, leads, and integrations — everything your team needs to run its sales operation.',
+                        'meta' => [
+                            'value' => '$250',
+                            'highlighted' => 'true',
+                            'highlight_1' => 'Unlimited agent seats',
+                            'highlight_2' => 'Unlimited leads, flows & partners',
+                            'highlight_3' => 'Real-time reporting & dashboards',
+                            'highlight_4' => 'Roles, compliance & audit trails',
+                            'highlight_5' => 'Priority support & onboarding',
+                        ],
+                    ],
+                ],
+            ],
+
+            'faq' => [
+                'key' => 'faq',
+                'title' => 'Frequently Asked Questions',
+                'subtitle' => 'Everything you need to know before booking a demo.',
+                'content' => [],
+                'items' => [
+                    [
+                        'title' => 'How long does onboarding take?',
+                        'description' => 'Most teams are fully set up within a week, including data migration from your existing spreadsheets or CRM.',
+                    ],
+                    [
+                        'title' => 'Can I migrate from another CRM?',
+                        'description' => 'Yes — our onboarding team handles the migration of your leads, contacts, and pipeline history for you.',
+                    ],
+                    [
+                        'title' => 'Is my data secure?',
+                        'description' => 'Data is encrypted in transit and at rest, with role-based access control and full audit trails for every action.',
+                    ],
+                    [
+                        'title' => 'Do you offer a trial?',
+                        'description' => "Yes — book a demo and we'll set you up with a trial environment using your own sample data.",
+                    ],
                 ],
             ],
 

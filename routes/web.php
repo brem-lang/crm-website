@@ -9,6 +9,7 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class, 'index'])
     ->middleware('track-visitor')
     ->name('home');
+Route::get('api-docs', [HomeController::class, 'apiDocs'])->name('api-docs');
 Route::post('demo-requests', [DemoRequestController::class, 'store'])
     ->middleware('throttle:demo-requests')
     ->name('demo-requests.store');

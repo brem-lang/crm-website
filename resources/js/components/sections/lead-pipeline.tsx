@@ -1,16 +1,23 @@
-import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+
 import { Container } from '@/components/sections/container';
-import { Reveal, RevealItem } from '@/components/sections/reveal';
+import { Reveal, RevealGroup, RevealItem } from '@/components/sections/reveal';
 import { getIcon } from '@/lib/icon-map';
 import { cn } from '@/lib/utils';
 import type { PublicSection } from '@/types/sections';
 
 export function LeadPipeline({ section }: { section: PublicSection }) {
+    const [activeId, setActiveId] = useState(section.items[0]?.id ?? null);
+    const active = section.items.find((item) => item.id === activeId) ?? section.items[0];
+    const activeHighlights = active?.meta
+        ? Object.values(active.meta).filter(Boolean)
+        : [];
+
     return (
         <section id="pipeline" className="bg-muted/30 py-20 sm:py-28">
             <Container>
                 <Reveal className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
@@ -18,82 +25,70 @@ export function LeadPipeline({ section }: { section: PublicSection }) {
                     )}
                 </Reveal>
 
-                <div className="relative mt-16">
-                    <div
-                        className="absolute top-0 bottom-0 left-5 w-px bg-border sm:left-1/2"
-                        aria-hidden
-                    />
+                <RevealGroup className="mx-auto mt-14 flex max-w-4xl flex-wrap justify-center gap-3">
+                    {section.items.map((item, index) => {
+                        const Icon = getIcon(item.icon);
+                        const isActive = item.id === active?.id;
 
-                    <div className="space-y-8">
-                        {section.items.map((item, index) => {
-                            const Icon = getIcon(item.icon);
-                            const isEven = index % 2 === 0;
-                            const highlights = item.meta
-                                ? Object.values(item.meta).filter(Boolean)
-                                : [];
-
-                            return (
-                                <RevealItem
-                                    key={item.id}
-                                    delay={index * 0.08}
+                        return (
+                            <RevealItem key={item.id} delay={index * 0.05}>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveId(item.id)}
                                     className={cn(
-                                        'relative flex flex-col gap-4 pl-14 sm:w-1/2 sm:pl-0',
-                                        isEven
-                                            ? 'sm:pr-12'
-                                            : 'sm:ml-auto sm:pl-12',
+                                        'flex w-32 flex-col items-center gap-2 rounded-xl border p-4 text-center transition-colors sm:w-36',
+                                        isActive
+                                            ? 'border-indigo-500 bg-indigo-500/5'
+                                            : 'bg-card hover:border-indigo-500/40',
                                     )}
                                 >
-                                    <div
+                                    <span
                                         className={cn(
-                                            'absolute top-0 flex size-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/25',
-                                            'left-0 sm:left-auto',
-                                            isEven ? 'sm:-right-5' : 'sm:-left-5',
+                                            'flex size-9 items-center justify-center rounded-lg',
+                                            isActive
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'bg-muted text-muted-foreground',
                                         )}
                                     >
                                         {Icon && <Icon className="size-4" />}
-                                    </div>
+                                    </span>
+                                    <span className="text-sm font-medium text-foreground">
+                                        {item.title}
+                                    </span>
+                                </button>
+                            </RevealItem>
+                        );
+                    })}
+                </RevealGroup>
 
-                                    {index < section.items.length - 1 && (
-                                        <div
-                                            className={cn(
-                                                'absolute top-10 text-blue-600/50',
-                                                'left-0 sm:left-auto',
-                                                isEven ? 'sm:-right-5' : 'sm:-left-5',
-                                            )}
-                                            aria-hidden
-                                        >
-                                            <ChevronDown className="size-4" />
-                                        </div>
-                                    )}
-
-                                    <div className="rounded-2xl border bg-card p-6">
-                                        <h3 className="text-base font-semibold text-foreground">
-                                            {item.title}
-                                        </h3>
-                                        {item.description && (
-                                            <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                                                {item.description}
-                                            </p>
-                                        )}
-                                        {highlights.length > 0 && (
-                                            <ul className="mt-3 space-y-1.5">
-                                                {highlights.map((highlight) => (
-                                                    <li
-                                                        key={highlight}
-                                                        className="flex items-start gap-2 text-sm leading-7 text-muted-foreground"
-                                                    >
-                                                        <span className="mt-2.5 size-1 shrink-0 rounded-full bg-blue-600/60" />
-                                                        {highlight}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                </RevealItem>
-                            );
-                        })}
-                    </div>
-                </div>
+                {active && (
+                    <Reveal
+                        key={active.id}
+                        className="mx-auto mt-8 max-w-3xl rounded-2xl border bg-card p-6 shadow-xl shadow-slate-900/5 sm:p-8"
+                    >
+                        <p className="text-xs font-semibold tracking-wide text-indigo-600 uppercase">
+                            {active.title}
+                        </p>
+                        {active.description && (
+                            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                                {active.description}
+                            </p>
+                        )}
+                        {activeHighlights.length > 0 && (
+                            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                                {activeHighlights.map((highlight) => (
+                                    <li
+                                        key={highlight}
+                                        className="flex items-start gap-2 text-sm leading-6 text-foreground"
+                                    >
+                                        <span className="mt-2 size-1.5 shrink-0 rounded-full bg-indigo-600/60" />
+                                        {highlight}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Reveal>
+                )}
             </Container>
         </section>
     );

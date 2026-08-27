@@ -23,4 +23,14 @@ class HomeController extends Controller
             'demoRequestSubmitted' => $request->session()->get('demoRequestSubmitted', false),
         ]);
     }
+
+    /**
+     * Render the public API documentation page.
+     */
+    public function apiDocs(): Response
+    {
+        return Inertia::render('api-docs', [
+            'settings' => SiteSetting::current(),
+        ]);
+    }
 }

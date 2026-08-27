@@ -3,7 +3,6 @@ import { SiteFooter } from '@/components/sections/site-footer';
 import { SiteHead } from '@/components/sections/site-head';
 import { SiteHeader } from '@/components/sections/site-header';
 import type { PublicSection, SiteSettings } from '@/types/sections';
-import { useEffect } from 'react';
 
 export default function Welcome({
     sections,
@@ -14,29 +13,15 @@ export default function Welcome({
     settings: SiteSettings;
     demoRequestSubmitted: boolean;
 }) {
-    // The theme tokens resolve against the root element, so forcing dark
-    // mode has to happen on <html> itself — not on a wrapper div further
-    // down the tree. Scoped to this page only; restores whatever the
-    // user's normal appearance was when they navigate away.
-    useEffect(() => {
-        const root = document.documentElement;
-        const wasDark = root.classList.contains('dark');
-        const previousColorScheme = root.style.colorScheme;
-
-        root.classList.add('dark');
-        root.style.colorScheme = 'dark';
-
-        return () => {
-            root.classList.toggle('dark', wasDark);
-            root.style.colorScheme = previousColorScheme;
-        };
-    }, []);
-
+    // Renders in whatever appearance the visitor already has (system default
+    // is light, per the site's light :root tokens) — same as every other
+    // page. Previously this forced dark mode, but the reference design is a
+    // light, airy page by default; forcing dark actively fought that look.
     return (
         <>
             <SiteHead settings={settings} />
 
-            <div className="flex min-h-screen flex-col bg-background text-foreground">
+            <div className="font-landing flex min-h-screen flex-col bg-background text-foreground">
                 <SiteHeader settings={settings} />
 
                 <main className="flex-1">

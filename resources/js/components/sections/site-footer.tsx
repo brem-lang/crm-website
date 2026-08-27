@@ -1,6 +1,7 @@
 import { Facebook, Instagram, Linkedin, Mail, Phone, Twitter } from 'lucide-react';
 
 import { Container } from '@/components/sections/container';
+import { home } from '@/routes';
 import type { SiteSettings } from '@/types/sections';
 
 const NAV_LINKS = [
@@ -8,6 +9,8 @@ const NAV_LINKS = [
     { href: '#product-showcase', label: 'Product' },
     { href: '#pipeline', label: 'Pipeline' },
     { href: '#industries', label: 'Industries' },
+    { href: '#pricing', label: 'Pricing' },
+    { href: '/api-docs', label: 'API Docs' },
 ];
 
 const SOCIAL_LINKS: { key: keyof SiteSettings; label: string; icon: typeof Facebook }[] = [
@@ -26,7 +29,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
             <Container className="py-16">
                 <div className="grid gap-12 lg:grid-cols-[2fr_1fr_1fr]">
                     <div className="max-w-sm">
-                        <a href="#" className="flex items-center gap-2 font-semibold tracking-tight">
+                        <a href={home().url} className="flex items-center gap-2 font-semibold tracking-tight">
                             {settings.logo_url ? (
                                 <img src={settings.logo_url} alt={siteTitle} className="h-7" />
                             ) : (
@@ -50,7 +53,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             aria-label={link.label}
-                                            className="inline-flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-blue-600 hover:text-blue-600"
+                                            className="inline-flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-indigo-500 hover:text-indigo-500"
                                         >
                                             <Icon className="size-4" />
                                         </a>
@@ -104,7 +107,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                             <li>
                                 <a
                                     href="#demo"
-                                    className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                                    className="text-sm font-medium text-indigo-500 hover:text-indigo-600"
                                 >
                                     Book a Demo →
                                 </a>

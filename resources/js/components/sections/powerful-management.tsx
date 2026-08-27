@@ -10,13 +10,13 @@ export function PowerfulManagement({ section }: { section: PublicSection }) {
                 aria-hidden
             />
             <div
-                className="absolute top-1/2 left-1/2 -z-10 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/10 blur-3xl"
+                className="absolute top-1/2 left-1/2 -z-10 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl"
                 aria-hidden
             />
 
             <Container className="grid gap-16 lg:grid-cols-2 lg:items-center">
                 <Reveal>
-                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
@@ -34,7 +34,7 @@ export function PowerfulManagement({ section }: { section: PublicSection }) {
                             delay={index * 0.05}
                             className="rounded-2xl border border-background/10 bg-background/5 p-6 transition-colors hover:bg-background/10"
                         >
-                            <p className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                            <p className="text-2xl font-bold tracking-tight tabular-nums sm:text-3xl">
                                 {item.meta?.value ?? '—'}
                             </p>
                             <p className="mt-1 text-sm text-background/70">{item.title}</p>

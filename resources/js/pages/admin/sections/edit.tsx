@@ -54,6 +54,12 @@ type ItemFieldConfig = {
 };
 
 const ITEM_FIELD_CONFIG: Record<string, ItemFieldConfig> = {
+    hero: {
+        description: false,
+        icon: false,
+        image: false,
+        statValue: true,
+    },
     platform_features: {
         description: true,
         icon: true,
@@ -90,7 +96,14 @@ const ITEM_FIELD_CONFIG: Record<string, ItemFieldConfig> = {
         image: false,
         statValue: false,
     },
+    pricing: {
+        description: true,
+        icon: false,
+        image: false,
+        statValue: true,
+    },
 };
+
 
 const DEFAULT_ITEM_FIELDS: ItemFieldConfig = {
     description: true,
@@ -101,6 +114,7 @@ const DEFAULT_ITEM_FIELDS: ItemFieldConfig = {
 
 const CONTENT_FIELDS: Record<string, { name: string; label: string }[]> = {
     hero: [
+        { name: 'eyebrow_text', label: 'Eyebrow Badge Text' },
         { name: 'primary_button_text', label: 'Primary Button Text' },
         { name: 'primary_button_url', label: 'Primary Button URL' },
         { name: 'secondary_button_text', label: 'Secondary Button Text' },
@@ -109,7 +123,11 @@ const CONTENT_FIELDS: Record<string, { name: string; label: string }[]> = {
     final_cta: [{ name: 'submit_button_text', label: 'Submit Button Text' }],
 };
 
-const SECTIONS_WITHOUT_ITEMS = ['hero', 'final_cta'];
+const SECTIONS_WITHOUT_ITEMS = ['final_cta', 'roi_calculator'];
+
+const STAT_VALUE_LABELS: Record<string, string> = {
+    pricing: 'Price',
+};
 
 export default function SectionEdit({
     section,
@@ -354,6 +372,7 @@ export default function SectionEdit({
                                 <ItemFields
                                     fieldConfig={fieldConfig}
                                     errors={errors}
+                                    sectionKey={section.key}
                                 />
                                 <Button type="submit" disabled={processing}>
                                     Add Item
@@ -387,6 +406,7 @@ export default function SectionEdit({
                                             item={editingItem}
                                             fieldConfig={fieldConfig}
                                             errors={errors}
+                                            sectionKey={section.key}
                                         />
                                         <Button
                                             type="submit"
@@ -409,11 +429,14 @@ function ItemFields({
     item,
     fieldConfig,
     errors,
+    sectionKey,
 }: {
     item?: SectionItem;
     fieldConfig: ItemFieldConfig;
     errors: Record<string, string | undefined>;
+    sectionKey: string;
 }) {
+    const statValueLabel = STAT_VALUE_LABELS[sectionKey] ?? 'Stat Value';
     return (
         <>
             <div className="grid gap-2">
@@ -463,7 +486,7 @@ function ItemFields({
 
             {fieldConfig.statValue && (
                 <div className="grid gap-2">
-                    <Label htmlFor="meta.value">Stat Value</Label>
+                    <Label htmlFor="meta.value">{statValueLabel}</Label>
                     <Input
                         id="meta.value"
                         name="meta[value]"
