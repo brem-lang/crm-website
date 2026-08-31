@@ -31,7 +31,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.'
     Route::get('demo-requests/{demoRequest}', [DemoRequestController::class, 'show'])->name('demo-requests.show');
     Route::patch('demo-requests/{demoRequest}', [DemoRequestController::class, 'update'])->name('demo-requests.update');
     Route::delete('demo-requests/{demoRequest}', [DemoRequestController::class, 'destroy'])->name('demo-requests.destroy');
-    Route::post('demo-requests/{demoRequest}/send-email', [DemoRequestController::class, 'sendEmail'])->name('demo-requests.send-email');
+    Route::post('demo-requests/{demoRequest}/send-credentials', [DemoRequestController::class, 'sendCredentials'])->name('demo-requests.send-credentials');
     Route::post('demo-requests/{demoRequest}/restore', [DemoRequestController::class, 'restore'])->name('demo-requests.restore')->withTrashed();
     Route::delete('demo-requests/{demoRequest}/force', [DemoRequestController::class, 'forceDestroy'])->name('demo-requests.force-destroy')->withTrashed();
 

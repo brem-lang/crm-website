@@ -3,13 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\DemoRequest;
-use App\Models\DemoRequestSentEmail;
+use App\Models\DemoRequestSentCredential;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<DemoRequestSentEmail>
+ * @extends Factory<DemoRequestSentCredential>
  */
-class DemoRequestSentEmailFactory extends Factory
+class DemoRequestSentCredentialFactory extends Factory
 {
     /**
      * Define the model's default state.

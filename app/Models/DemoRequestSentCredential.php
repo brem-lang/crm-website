@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\DemoRequestSentEmailFactory;
+use Database\Factories\DemoRequestSentCredentialFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,9 +19,9 @@ use Illuminate\Support\Carbon;
  * @property-read DemoRequest $demoRequest
  */
 #[Fillable(['demo_request_id', 'url', 'login_email'])]
-class DemoRequestSentEmail extends Model
+class DemoRequestSentCredential extends Model
 {
-    /** @use HasFactory<DemoRequestSentEmailFactory> */
+    /** @use HasFactory<DemoRequestSentCredentialFactory> */
     use HasFactory;
 
     /**

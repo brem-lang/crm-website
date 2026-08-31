@@ -9,6 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { telegramUrl } from '@/lib/telegram';
 import { dashboard } from '@/routes/admin';
 import demoRequests, { index } from '@/routes/admin/demo-requests';
 
@@ -16,7 +17,7 @@ type DemoRequest = {
     id: number;
     name: string;
     company: string;
-    email: string;
+    telegram_username: string;
     phone: string;
     country: string;
     business_type: string;
@@ -70,8 +71,17 @@ export default function DemoRequestShow({ demoRequest }: { demoRequest: DemoRequ
                                 <dd>{demoRequest.company}</dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Email</dt>
-                                <dd>{demoRequest.email}</dd>
+                                <dt className="text-muted-foreground">Telegram</dt>
+                                <dd>
+                                    <a
+                                        href={telegramUrl(demoRequest.telegram_username)}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="hover:underline"
+                                    >
+                                        {demoRequest.telegram_username}
+                                    </a>
+                                </dd>
                             </div>
                             <div>
                                 <dt className="text-muted-foreground">Phone</dt>

@@ -9,7 +9,7 @@ beforeEach(function () {
     $this->payload = fn () => [
         'name' => 'Jane Doe',
         'company' => 'Acme Inc',
-        'email' => fake()->unique()->safeEmail(),
+        'telegram_username' => '@'.fake()->unique()->regexify('[A-Za-z0-9_]{8,15}'),
         'phone' => '+1 555 000 1234',
         'country' => 'United States',
         'business_type' => 'Forex & CFD',

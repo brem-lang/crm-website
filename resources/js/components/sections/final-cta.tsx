@@ -103,11 +103,18 @@ export function FinalCta({
 
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div className="grid gap-1.5">
-                                            <Label htmlFor="email">Email</Label>
-                                            <Input id="email" name="email" type="email" required />
-                                            {errors.email && (
+                                            <Label htmlFor="telegram_username">
+                                                Telegram Username or Phone
+                                            </Label>
+                                            <Input
+                                                id="telegram_username"
+                                                name="telegram_username"
+                                                placeholder="@yourusername or +1 555 000 1234"
+                                                required
+                                            />
+                                            {errors.telegram_username && (
                                                 <p className="text-xs text-destructive">
-                                                    {errors.email}
+                                                    {errors.telegram_username}
                                                 </p>
                                             )}
                                         </div>

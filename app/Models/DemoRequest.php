@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property string $company
- * @property string $email
+ * @property string|null $telegram_username
  * @property string $phone
  * @property string $country
  * @property string $business_type
@@ -24,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
-#[Fillable(['name', 'company', 'email', 'phone', 'country', 'business_type', 'message', 'status'])]
+#[Fillable(['name', 'company', 'telegram_username', 'phone', 'country', 'business_type', 'message', 'status'])]
 class DemoRequest extends Model
 {
     /** @use HasFactory<DemoRequestFactory> */
@@ -41,10 +41,10 @@ class DemoRequest extends Model
     public const STATUS_CLOSED = 'closed';
 
     /**
-     * The history of login-credentials emails sent for this demo request.
+     * The history of login-credentials sends for this demo request.
      */
-    public function sentEmails(): HasMany
+    public function sentCredentials(): HasMany
     {
-        return $this->hasMany(DemoRequestSentEmail::class);
+        return $this->hasMany(DemoRequestSentCredential::class);
     }
 }

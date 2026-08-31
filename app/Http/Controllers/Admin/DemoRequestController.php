@@ -9,11 +9,9 @@ use App\Http\Requests\Admin\BulkRestoreDemoRequestsRequest;
 use App\Http\Requests\Admin\BulkUpdateDemoRequestStatusRequest;
 use App\Http\Requests\Admin\SendDemoRequestCredentialsRequest;
 use App\Http\Requests\Admin\UpdateDemoRequestStatusRequest;
-use App\Mail\DemoRequestCredentialsMail;
 use App\Models\DemoRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -32,7 +30,7 @@ class DemoRequestController extends Controller
         }
 
         $query = DemoRequest::query()
-            ->with(['sentEmails' => fn ($q) => $q->latest()])
+            ->with(['sentCredentials' => fn ($q) => $q->latest()])
             ->latest();
 
         if ($request->string('trashed')->value() === 'only') {
@@ -55,7 +53,7 @@ class DemoRequestController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('company', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('telegram_username', 'like', "%{$search}%");
             });
         }
 
@@ -146,23 +144,19 @@ class DemoRequestController extends Controller
     }
 
     /**
-     * Email login credentials to the person who submitted this demo request.
+     * Record that login credentials were sent to this demo request's lead on Telegram.
+     *
+     * There's no bot/API send here — the admin messages the lead directly in Telegram
+     * (via the "Message on Telegram" link in the UI). This just logs the send for history.
      */
-    public function sendEmail(SendDemoRequestCredentialsRequest $request, DemoRequest $demoRequest): RedirectResponse
+    public function sendCredentials(SendDemoRequestCredentialsRequest $request, DemoRequest $demoRequest): RedirectResponse
     {
-        Mail::to($demoRequest->email)->send(new DemoRequestCredentialsMail(
-            demoRequestName: $demoRequest->name,
-            url: $request->validated('url'),
-            loginEmail: $request->validated('email'),
-            password: $request->validated('password'),
-        ));
-
-        $demoRequest->sentEmails()->create([
+        $demoRequest->sentCredentials()->create([
             'url' => $request->validated('url'),
             'login_email' => $request->validated('email'),
         ]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "Credentials emailed to {$demoRequest->email}."]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Credentials logged for @{$demoRequest->telegram_username}."]);
 
         return back();
     }
@@ -214,7 +208,7 @@ class DemoRequestController extends Controller
      */
     public function export(): StreamedResponse
     {
-        $columns = ['ID', 'Name', 'Company', 'Email', 'Phone', 'Country', 'Business Type', 'Status', 'Message', 'Submitted At'];
+        $columns = ['ID', 'Name', 'Company', 'Telegram Username', 'Phone', 'Country', 'Business Type', 'Status', 'Message', 'Submitted At'];
 
         return response()->streamDownload(function () use ($columns) {
             $handle = fopen('php://output', 'w');
@@ -225,7 +219,7 @@ class DemoRequestController extends Controller
                     $demoRequest->id,
                     $demoRequest->name,
                     $demoRequest->company,
-                    $demoRequest->email,
+                    $demoRequest->telegram_username,
                     $demoRequest->phone,
                     $demoRequest->country,
                     $demoRequest->business_type,

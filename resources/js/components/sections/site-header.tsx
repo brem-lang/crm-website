@@ -27,6 +27,13 @@ const NAV_LINKS = [
 export function SiteHeader({ settings }: { settings: SiteSettings }) {
     const [open, setOpen] = useState(false);
 
+    // Section links are anchors on the homepage — from any other page (e.g. /api-docs)
+    // they need to be resolved against the homepage URL, or clicking them just rewrites
+    // the current page's hash instead of navigating anywhere.
+    function resolveHref(href: string) {
+        return href.startsWith('#') ? `${home().url}${href}` : href;
+    }
+
     return (
         <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg">
             <Container className="flex h-16 items-center justify-between">
@@ -48,7 +55,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                     {NAV_LINKS.map((link) => (
                         <a
                             key={link.href}
-                            href={link.href}
+                            href={resolveHref(link.href)}
                             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                         >
                             {link.label}
@@ -65,7 +72,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                         Log in
                     </a>
                     <Button asChild variant="gradient">
-                        <a href="#demo">Book a Demo</a>
+                        <a href={resolveHref('#demo')}>Book a Demo</a>
                     </Button>
                 </div>
 
@@ -88,7 +95,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                                 {NAV_LINKS.map((link) => (
                                     <SheetClose key={link.href} asChild>
                                         <a
-                                            href={link.href}
+                                            href={resolveHref(link.href)}
                                             className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                                         >
                                             {link.label}
@@ -104,7 +111,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                                 </SheetClose>
                                 <SheetClose asChild>
                                     <Button asChild variant="gradient" className="w-full">
-                                        <a href="#demo">Book a Demo</a>
+                                        <a href={resolveHref('#demo')}>Book a Demo</a>
                                     </Button>
                                 </SheetClose>
                             </div>

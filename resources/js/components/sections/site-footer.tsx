@@ -20,6 +20,10 @@ const SOCIAL_LINKS: { key: keyof SiteSettings; label: string; icon: typeof Faceb
     { key: 'social_twitter', label: 'X / Twitter', icon: Twitter },
 ];
 
+function resolveHref(href: string) {
+    return href.startsWith('#') ? `${home().url}${href}` : href;
+}
+
 export function SiteFooter({ settings }: { settings: SiteSettings }) {
     const socials = SOCIAL_LINKS.filter((link) => settings[link.key]);
     const siteTitle = settings.site_title ?? 'AlphaMasterCRM';
@@ -69,7 +73,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                             {NAV_LINKS.map((link) => (
                                 <li key={link.href}>
                                     <a
-                                        href={link.href}
+                                        href={resolveHref(link.href)}
                                         className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                                     >
                                         {link.label}
@@ -106,7 +110,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                             )}
                             <li>
                                 <a
-                                    href="#demo"
+                                    href={resolveHref('#demo')}
                                     className="text-sm font-medium text-indigo-500 hover:text-indigo-600"
                                 >
                                     Book a Demo →

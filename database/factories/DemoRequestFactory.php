@@ -20,7 +20,7 @@ class DemoRequestFactory extends Factory
         return [
             'name' => fake()->name(),
             'company' => fake()->company(),
-            'email' => fake()->unique()->safeEmail(),
+            'telegram_username' => '@'.fake()->unique()->regexify('[A-Za-z0-9_]{8,15}'),
             'phone' => fake()->e164PhoneNumber(),
             'country' => fake()->country(),
             'business_type' => fake()->randomElement(['Forex & CFD', 'Crypto', 'Call Center', 'Lead Generation', 'Sales Organization']),

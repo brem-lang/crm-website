@@ -8,13 +8,13 @@ import {
     Eye,
     Globe,
     Loader2,
-    Mail,
     MessageSquareText,
     MoreHorizontal,
     Phone,
     RotateCcw,
     Search,
     Send,
+    SendHorizonal,
     Trash2,
     X,
     XCircle,
@@ -61,10 +61,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { telegramUrl } from '@/lib/telegram';
 import { dashboard } from '@/routes/admin';
 import demoRequests, { index } from '@/routes/admin/demo-requests';
 
-type SentEmail = {
+type SentCredential = {
     id: number;
     url: string;
     login_email: string;
@@ -75,7 +76,7 @@ type DemoRequest = {
     id: number;
     name: string;
     company: string;
-    email: string;
+    telegram_username: string;
     phone: string;
     country: string;
     business_type: string;
@@ -83,7 +84,7 @@ type DemoRequest = {
     status: string;
     created_at: string;
     deleted_at: string | null;
-    sent_emails: SentEmail[];
+    sent_credentials: SentCredential[];
 };
 
 type Counts = {
@@ -152,10 +153,10 @@ export default function DemoRequestsIndex({
     const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [bulkUpdating, setBulkUpdating] = useState(false);
-    const [sendingEmailTo, setSendingEmailTo] = useState<DemoRequest | null>(null);
-    const [emailForm, setEmailForm] = useState({ url: '', email: '', password: '' });
-    const [emailErrors, setEmailErrors] = useState<Record<string, string>>({});
-    const [sendingEmail, setSendingEmail] = useState(false);
+    const [sendingCredentialsTo, setSendingCredentialsTo] = useState<DemoRequest | null>(null);
+    const [credentialsForm, setCredentialsForm] = useState({ url: '', email: '', password: '' });
+    const [credentialsErrors, setCredentialsErrors] = useState<Record<string, string>>({});
+    const [sendingCredentials, setSendingCredentials] = useState(false);
 
     const viewingTrashed = filters.trashed === 'only';
 
@@ -311,23 +312,23 @@ export default function DemoRequestsIndex({
         }
     }
 
-    function openSendEmail(request: DemoRequest) {
-        setSendingEmailTo(request);
-        setEmailForm({ url: '', email: '', password: '' });
-        setEmailErrors({});
+    function openSendCredentials(request: DemoRequest) {
+        setSendingCredentialsTo(request);
+        setCredentialsForm({ url: '', email: '', password: '' });
+        setCredentialsErrors({});
     }
 
-    function submitSendEmail() {
-        if (!sendingEmailTo) {
+    function submitSendCredentials() {
+        if (!sendingCredentialsTo) {
             return;
         }
 
-        setSendingEmail(true);
-        router.post(demoRequests.sendEmail(sendingEmailTo).url, emailForm, {
+        setSendingCredentials(true);
+        router.post(demoRequests.sendCredentials(sendingCredentialsTo).url, credentialsForm, {
             preserveScroll: true,
-            onSuccess: () => setSendingEmailTo(null),
-            onError: (errors) => setEmailErrors(errors as Record<string, string>),
-            onFinish: () => setSendingEmail(false),
+            onSuccess: () => setSendingCredentialsTo(null),
+            onError: (errors) => setCredentialsErrors(errors as Record<string, string>),
+            onFinish: () => setSendingCredentials(false),
         });
     }
 
@@ -439,7 +440,7 @@ export default function DemoRequestsIndex({
                                 <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     className="pl-8"
-                                    placeholder="Name, company, or email…"
+                                    placeholder="Name, company, or Telegram username…"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     onKeyDown={(e) => {
@@ -604,7 +605,7 @@ export default function DemoRequestsIndex({
                                 </TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Company</TableHead>
-                                <TableHead>Email</TableHead>
+                                <TableHead>Telegram</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Submitted</TableHead>
                                 <TableHead className="w-12 text-right">Actions</TableHead>
@@ -641,7 +642,17 @@ export default function DemoRequestsIndex({
                                             {request.company}
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">{request.email}</TableCell>
+                                    <TableCell>
+                                        <a
+                                            href={telegramUrl(request.telegram_username)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-muted-foreground hover:text-foreground hover:underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {request.telegram_username}
+                                        </a>
+                                    </TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-1.5">
                                             <StatusBadge status={request.status} />
@@ -689,12 +700,6 @@ export default function DemoRequestsIndex({
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <DropdownMenuItem onClick={() => openSendEmail(request)}>
-                                                            <Send className="size-4" />
-                                                            Send email
-                                                        </DropdownMenuItem>
-
-                                                        <DropdownMenuSeparator />
                                                         <DropdownMenuLabel>Mark as</DropdownMenuLabel>
                                                         {STATUS_OPTIONS.filter(
                                                             (status) => status !== request.status,
@@ -794,10 +799,19 @@ export default function DemoRequestsIndex({
                             <dl className="grid grid-cols-2 gap-4 text-sm">
                                 <div className="space-y-1">
                                     <dt className="flex items-center gap-1.5 text-muted-foreground">
-                                        <Mail className="size-3.5" />
-                                        Email
+                                        <SendHorizonal className="size-3.5" />
+                                        Telegram
                                     </dt>
-                                    <dd className="break-all">{viewing.email}</dd>
+                                    <dd className="break-all">
+                                        <a
+                                            href={telegramUrl(viewing.telegram_username)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="hover:underline"
+                                        >
+                                            {viewing.telegram_username}
+                                        </a>
+                                    </dd>
                                 </div>
                                 <div className="space-y-1">
                                     <dt className="flex items-center gap-1.5 text-muted-foreground">
@@ -839,9 +853,9 @@ export default function DemoRequestsIndex({
                                     <Send className="size-3.5" />
                                     Credentials Sent
                                 </dt>
-                                {viewing.sent_emails.length > 0 ? (
+                                {viewing.sent_credentials.length > 0 ? (
                                     <ul className="space-y-2">
-                                        {viewing.sent_emails.map((sent) => (
+                                        {viewing.sent_credentials.map((sent) => (
                                             <li
                                                 key={sent.id}
                                                 className="rounded-lg border bg-muted/40 p-3 text-sm"
@@ -911,12 +925,12 @@ export default function DemoRequestsIndex({
                                         <Button
                                             variant="outline"
                                             onClick={() => {
-                                                openSendEmail(viewing);
+                                                openSendCredentials(viewing);
                                                 setViewing(null);
                                             }}
                                         >
                                             <Send className="size-4" />
-                                            Send email
+                                            Send credentials
                                         </Button>
                                     </>
                                 )}
@@ -930,64 +944,72 @@ export default function DemoRequestsIndex({
             </Dialog>
 
             <Dialog
-                open={!!sendingEmailTo}
-                onOpenChange={(open) => !open && setSendingEmailTo(null)}
+                open={!!sendingCredentialsTo}
+                onOpenChange={(open) => !open && setSendingCredentialsTo(null)}
             >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Send login credentials</DialogTitle>
                         <DialogDescription>
-                            Sending to{' '}
-                            <span className="font-medium text-foreground">
-                                {sendingEmailTo?.email}
-                            </span>
+                            Fill these in, then message{' '}
+                            {sendingCredentialsTo && (
+                                <a
+                                    href={telegramUrl(sendingCredentialsTo.telegram_username)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="font-medium text-foreground hover:underline"
+                                >
+                                    {sendingCredentialsTo.telegram_username}
+                                </a>
+                            )}{' '}
+                            on Telegram yourself — this just records that it was sent.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4">
                         <div className="grid gap-1.5">
-                            <Label htmlFor="send-email-url">URL</Label>
+                            <Label htmlFor="send-credentials-url">URL</Label>
                             <Input
-                                id="send-email-url"
+                                id="send-credentials-url"
                                 placeholder="https://app.alphamastercrm.test"
-                                value={emailForm.url}
+                                value={credentialsForm.url}
                                 onChange={(e) =>
-                                    setEmailForm((f) => ({ ...f, url: e.target.value }))
+                                    setCredentialsForm((f) => ({ ...f, url: e.target.value }))
                                 }
                             />
-                            {emailErrors.url && (
-                                <p className="text-xs text-destructive">{emailErrors.url}</p>
+                            {credentialsErrors.url && (
+                                <p className="text-xs text-destructive">{credentialsErrors.url}</p>
                             )}
                         </div>
 
                         <div className="grid gap-1.5">
-                            <Label htmlFor="send-email-email">Email (login username)</Label>
+                            <Label htmlFor="send-credentials-email">Email (login username)</Label>
                             <Input
-                                id="send-email-email"
+                                id="send-credentials-email"
                                 type="email"
                                 placeholder="user@example.com"
-                                value={emailForm.email}
+                                value={credentialsForm.email}
                                 onChange={(e) =>
-                                    setEmailForm((f) => ({ ...f, email: e.target.value }))
+                                    setCredentialsForm((f) => ({ ...f, email: e.target.value }))
                                 }
                             />
-                            {emailErrors.email && (
-                                <p className="text-xs text-destructive">{emailErrors.email}</p>
+                            {credentialsErrors.email && (
+                                <p className="text-xs text-destructive">{credentialsErrors.email}</p>
                             )}
                         </div>
 
                         <div className="grid gap-1.5">
-                            <Label htmlFor="send-email-password">Password</Label>
+                            <Label htmlFor="send-credentials-password">Password</Label>
                             <Input
-                                id="send-email-password"
+                                id="send-credentials-password"
                                 placeholder="Temporary password"
-                                value={emailForm.password}
+                                value={credentialsForm.password}
                                 onChange={(e) =>
-                                    setEmailForm((f) => ({ ...f, password: e.target.value }))
+                                    setCredentialsForm((f) => ({ ...f, password: e.target.value }))
                                 }
                             />
-                            {emailErrors.password && (
-                                <p className="text-xs text-destructive">{emailErrors.password}</p>
+                            {credentialsErrors.password && (
+                                <p className="text-xs text-destructive">{credentialsErrors.password}</p>
                             )}
                         </div>
                     </div>
@@ -995,26 +1017,26 @@ export default function DemoRequestsIndex({
                     <DialogFooter>
                         <Button
                             variant="outline"
-                            onClick={() => setSendingEmailTo(null)}
-                            disabled={sendingEmail}
+                            onClick={() => setSendingCredentialsTo(null)}
+                            disabled={sendingCredentials}
                         >
                             Cancel
                         </Button>
                         <Button
-                            onClick={submitSendEmail}
+                            onClick={submitSendCredentials}
                             disabled={
-                                sendingEmail ||
-                                !emailForm.url ||
-                                !emailForm.email ||
-                                !emailForm.password
+                                sendingCredentials ||
+                                !credentialsForm.url ||
+                                !credentialsForm.email ||
+                                !credentialsForm.password
                             }
                         >
-                            {sendingEmail ? (
+                            {sendingCredentials ? (
                                 <Loader2 className="size-4 animate-spin" />
                             ) : (
                                 <Send className="size-4" />
                             )}
-                            Send email
+                            Mark as sent
                         </Button>
                     </DialogFooter>
                 </DialogContent>
