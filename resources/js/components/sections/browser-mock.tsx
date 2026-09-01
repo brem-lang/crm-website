@@ -7,10 +7,13 @@ export function BrowserMock({
     title,
     children,
     className,
+    noPadding,
 }: {
     title?: string;
     children: ReactNode;
     className?: string;
+    /** Skip the inner padding — for real screenshots that should fill the frame. */
+    noPadding?: boolean;
 }) {
     return (
         <div
@@ -26,7 +29,7 @@ export function BrowserMock({
                     </span>
                 )}
             </div>
-            <div className="p-4">{children}</div>
+            <div className={noPadding ? undefined : 'p-4'}>{children}</div>
         </div>
     );
 }

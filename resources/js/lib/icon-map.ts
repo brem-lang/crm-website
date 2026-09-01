@@ -1,9 +1,12 @@
 import {
+    Activity,
     BadgeCheck,
     BarChart3,
+    Database,
     GitBranch,
     Handshake,
     Inbox,
+    KeyRound,
     LineChart,
     ListChecks,
     Lock,
@@ -17,6 +20,7 @@ import {
     ShieldCheck,
     Sparkles,
     Table2,
+    Target,
     TrendingUp,
     Users,
     Workflow,
@@ -47,6 +51,10 @@ const ICONS: Record<string, LucideIcon> = {
     lock: Lock,
     'badge-check': BadgeCheck,
     server: Server,
+    target: Target,
+    activity: Activity,
+    'key-round': KeyRound,
+    database: Database,
 };
 
 export function getIcon(name?: string | null): LucideIcon | null {

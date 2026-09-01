@@ -17,11 +17,10 @@ import type { SiteSettings } from '@/types/sections';
 
 const NAV_LINKS = [
     { href: '#platform-features', label: 'Features' },
-    { href: '#product-showcase', label: 'Product' },
-    { href: '#pipeline', label: 'Pipeline' },
-    { href: '#industries', label: 'Industries' },
+    { href: '#industries', label: 'Solutions' },
+    { href: '#pipeline', label: 'Integrations' },
     { href: '#pricing', label: 'Pricing' },
-    { href: '/api-docs', label: 'API' },
+    { href: '#faq', label: 'Resources' },
 ];
 
 export function SiteHeader({ settings }: { settings: SiteSettings }) {

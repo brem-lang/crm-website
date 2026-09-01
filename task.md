@@ -1,96 +1,171 @@
-# Task: Send demo credentials via Telegram instead of email/SMTP — DONE
+# Plan: 10 landing-page changes for AlphaMasterCRM
 
-Implemented as described below. Summary of what shipped:
-- `demo_requests.email` dropped, replaced with required `telegram_username` (migration
-  `2026_09_01_000001_...`).
-- Public form (`final-cta.tsx`) now collects Telegram username instead of email.
-- `demo_request_sent_emails` table renamed to `demo_request_sent_credentials`
-  (migration `2026_09_01_000002_...`); model renamed `DemoRequestSentEmail` →
-  `DemoRequestSentCredential` (`login_email` column kept as-is — it's the CRM login
-  username, unrelated to contact channel).
-- `DemoRequestCredentialsMail` mailable + its Blade view deleted; admin's
-  `sendEmail()` action renamed `sendCredentials()` — no longer sends mail, just logs
-  the send. Route renamed `admin.demo-requests.send-credentials`.
-- Admin UI shows the Telegram handle with a "Message on Telegram" (`t.me/<handle>`)
-  link on the index table, view dialog, and show page; the "send credentials" dialog
-  now says to message the lead directly and just records the send.
-- CSV export and search updated to use `telegram_username`.
-- Tests updated/renamed accordingly; full suite passes (2 unrelated pre-existing
-  failures in `SecurityTest` re: passkeys, untouched by this change).
+Scope check against the current architecture: the homepage is 100% database-driven —
+`Section`/`SectionItem` rows (seeded by `database/seeders/SectionSeeder.php`, editable
+live in `/admin/sections`) get rendered by a fixed switch in
+`resources/js/components/sections/section-renderer.tsx`, one React component per
+section `key`. **Nothing here requires a rebuild.** Most of the 10 items are pure
+content edits (seeder + admin panel); a few need one new small, reusable component
+(not a redesign) plus 2-3 new section rows. Nav lives separately in
+`site-header.tsx` / `site-footer.tsx` (hard-coded `NAV_LINKS`, not DB-driven).
 
----
+## ⚠️ Decisions needed before I implement (can't guess these safely)
 
+1. **Real dashboard screenshot (#2)** — there is currently **no real screenshot**.
+   The "dashboard" in `hero.tsx` is a hand-built fake mock (`BrowserMock`) with
+   made-up numbers (Active leads 2,481, etc.). To do what's asked — "the real
+   CRM/Dashboard screenshot" — I need an actual image file from you (or a URL) of
+   the real product UI. I can enlarge/feature whatever mockup exists, but I won't
+   invent a "real screenshot" — that would just be more fake UI with a different
+   label.
+2. **Accurate feature/security/Forex copy (#4, #5, #6, #7)** — this repo is the
+   marketing site only; it doesn't contain the actual CRM product. The current
+   seeded copy (11 features + "Advertisers/Affiliates" framing) reads like an
+   affiliate/CPA lead-gen network, not a general Forex/Crypto/sales-team CRM. Your
+   brief explicitly says *"show only features/security that are actually
+   implemented"* — I can restructure and tighten wording, but I can't verify from
+   this codebase whether e.g. "Role-Based Access", "2FA", "Encryption", "Backups",
+   or specific Forex capabilities are real product features. **I'll draft the 6
+   feature blurbs, the Forex section, the Sales Team section, and the Security
+   list using only what's already implied by existing seeded content (nothing
+   new invented) — flag anything you want changed/removed once you see it.**
+3. **Solutions / Integrations / Resources nav items (#3)** — no such pages exist
+   (only `/`, `/api-docs`, and homepage anchors). Options: (a) point them at the
+   closest existing homepage anchor (Solutions → Industries, Integrations →
+   Features, Resources → FAQ or API Docs), or (b) build minimal new pages. Given
+   "do not rebuild / not adding new functionality today," I'm defaulting to
+   **(a) — anchor them to existing sections** unless you say otherwise.
+4. **Privacy Policy / Terms (#9)** — footer asks for real links. I can create two
+   minimal static pages, but I will not write real legal text — that needs your
+   actual policy content (or a placeholder explicitly marked "Coming soon" until
+   legal provides copy). Let me know which.
 
-## Corrected understanding
-After a lead books a demo, an **admin manually messages them their login credentials on
-Telegram** — replacing today's automated SMTP email (`DemoRequestCredentialsMail`), not a
-bot alert to the team. This is a person-to-person send, so no Telegram Bot API / webhook is
-needed — just capture how to reach the lead on Telegram and give the admin a fast way to open
-that chat.
+I'll proceed with the safe defaults above (3a, and honest/minimal copy for #2 and
+#4) and implement everything else now; flag anything you want changed.
 
-## Current flow (being replaced)
-- `app/Http/Controllers/Admin/DemoRequestController.php::sendEmail()` — admin fills in a form
-  (URL, login email, password) and it calls
-  `Mail::to($demoRequest->email)->send(new DemoRequestCredentialsMail(...))` via SMTP.
-- Each send is logged via `DemoRequestSentEmail` (`app/Models/DemoRequestSentEmail.php`) —
-  `url`, `login_email` per send.
-- UI: `resources/js/pages/admin/demo-requests/show.tsx` has the "send credentials" form/dialog.
+## Item-by-item plan
 
-## Plan
+### 1. Hero headline/subtitle/buttons
+- Edit `SectionSeeder.php` `hero` entry (or directly via `/admin/sections/{hero}`
+  once seeded): title → *"The CRM Built for Forex, Crypto & High-Performance
+  Sales Teams"*, subtitle → *"Manage leads, clients, sales teams, follow-ups and
+  performance from one powerful CRM."*
+- `content.primary_button_text` = "Book a Free Demo" (→ `#demo`, unchanged),
+  `content.secondary_button_text` = "Explore Features" (→ `#platform-features`,
+  changed from `#product-showcase`).
+- No component code changes — `hero.tsx` already reads all of this from DB.
 
-### 1. Replace `email` with `telegram_username` as the booking contact method
-- Migration: add `telegram_username` (string, required) to `demo_requests`; drop the `email`
-  column (or make it nullable first, backfill/decide on historical rows, then drop — see
-  Open items).
-- `app/Models/DemoRequest.php`: swap `email` for `telegram_username` in `$fillable`.
-- `app/Http/Requests/StoreDemoRequestRequest.php`: remove the `email` rule, add
-  `telegram_username` as `required|string|max:255` (plus a regex to validate the `@handle`
-  format — Telegram usernames are 5-32 chars, letters/digits/underscores, may be entered with
-  or without a leading `@`).
-- Public form `resources/js/components/sections/final-cta.tsx`: **remove the Email input**,
-  add a **required** "Telegram Username" input in its place (alongside name/company/phone),
-  with client-side validation matching the backend rule.
-- Also update: CSV export (`Admin\DemoRequestController::export`) and the admin
-  index/show pages — replace the `email` column with `telegram_username` wherever it's
-  currently listed.
+### 2. Dashboard screenshot large & prominent
+- Pending decision #1 above. Once I have an image: replace (or wrap) the
+  `BrowserMock` fake content in `hero.tsx` with an `<img>` of the real screenshot,
+  increase its column width / remove the stat-strip competing for attention so
+  the screenshot is the dominant visual (per the brief: "main visual focus").
+- Keep the existing floating badge accents only if they reflect real behavior;
+  otherwise drop them (no fake "AI Summary: Ready" callouts on a real screenshot).
 
-### 2. Surface it to the admin
-- `resources/js/pages/admin/demo-requests/index.tsx` and `show.tsx`: display the
-  `telegram_username` value on the lead's row/detail page.
-- Add a **"Message on Telegram"** button/link next to it → `https://t.me/<handle>` (strip any
-  leading `@` before building the link). Opens Telegram (app or web) with that person's chat
-  ready — admin types and sends the credentials themselves, same as they would compose an
-  email today.
+### 3. Navbar cleanup
+- `site-header.tsx` `NAV_LINKS`: replace current 6 items with
+  `Features (#platform-features) | Solutions (#industries) | Integrations
+  (#platform-features or a new anchor) | Pricing (#pricing) | Resources (#faq)`,
+  plus existing `Log in` and `Book a Demo` (already styled as the highlighted
+  gradient button — no change needed there).
+- Mirror the same set in `site-footer.tsx`'s NAV_LINKS (currently duplicated,
+  slightly different labels — will keep in sync).
+- Drop `/api-docs` from the header/footer nav (not in the requested list) —
+  the page itself stays live at its URL, just unlinked from nav.
 
-### 3. Replace the "send credentials" action
-- Update the admin UI flow/dialog: drop the "login email" field (there's no lead email to send
-  to anymore), keep URL + password (or whatever credential fields still apply). On submit:
-  - Remove the call to `Mail::to(...)->send(new DemoRequestCredentialsMail(...))` entirely.
-  - Instead, just record the send (repurpose `DemoRequestSentEmail` → rename to
-    `DemoRequestSentCredential`, drop the `login_email` column) and show the admin a copy-ready
-    message plus a pre-filled `https://t.me/<handle>?text=...` link so they can send it
-    straight in the Telegram chat.
-  - Delete `DemoRequestCredentialsMail` (`app/Mail/DemoRequestCredentialsMail.php`) and its
-    Blade view (`resources/views/emails/demo-request-credentials.blade.php`) — no longer used.
-  - `MAIL_*`/SMTP config in `config/mail.php`/`.env.example` can stay for any *other* app email
-    (e.g. password resets, if any) — only remove it if this was its sole use.
+### 4. Features section (6 clear features + benefit each)
+- Rework `platform_features` section content in the seeder: replace the current
+  11 items + Advertiser/Affiliate "featured" blocks with exactly 6 items:
+  Lead Management, Sales Pipeline, Client Management, Team Management,
+  Follow-ups & Activities, Reports & Analytics — each with a one-line benefit
+  (subject to decision #2).
+- Component change: `platform-features.tsx` currently branches into "compact
+  grid" vs "featured big blocks" (via `meta.highlight_*`). With no featured
+  items left, it collapses to just the clean 6-card grid — verify this renders
+  fine with 6 items (likely 3-column grid, already responsive) and remove the
+  now-dead "featured" branch/`FeatureMock` component if nothing uses it.
 
-### 4. Data migration / naming cleanup (do alongside #3)
-- Rename `demo_request_sent_emails` table/model → `demo_request_sent_credentials` (drop the
-  `login_email` column's email-specific framing since credentials are always sent via
-  Telegram now) so the history/audit trail keeps working.
+### 5. "Built for Forex Brokers" section
+- New `Section` row, key `forex_brokers`, title "Built for Forex Brokers",
+  with `SectionItem` rows for real Forex-relevant capabilities pulled from what
+  the CRM already claims elsewhere (lead distribution/compliance/reporting) —
+  see decision #2.
+- New tiny reusable component, e.g. `resources/js/components/sections/icon-grid.tsx`
+  (title/subtitle + icon+title+description cards) — this is the same visual
+  pattern `platform-features.tsx`'s compact grid already uses, factored out so
+  Forex/Sales-Team/Security sections all reuse one component instead of three
+  near-duplicate ones (keeps things consistent, avoids "rebuilding" per-section).
+- Add `case 'forex_brokers': return <IconGrid section={section} />` in
+  `section-renderer.tsx`, insert the row after `platform_features` via
+  `sort_order` (or reorder later via `/admin/sections`).
 
-### 5. Testing
-- Feature test: submitting the public form now requires `telegram_username` and rejects a
-  missing/invalid one; no `email` field accepted/expected anymore.
-- Feature test: admin "send credentials" action no longer triggers `Mail::fake()` assertions
-  for an email send; instead asserts the new send-record is created.
-- Manual check: book a demo with a Telegram handle, confirm the admin panel shows the contact
-  and the "Message on Telegram" link opens the right chat.
+### 6. Sales Team section
+- New `Section` row, key `sales_team`, title "Give Your Sales Team the Tools to
+  Close More Deals", items: Lead Assignment, Follow-ups, Agent Performance,
+  Pipeline Management, Conversion Tracking, Reporting — reuses the same
+  `IconGrid` component from #5.
 
-## Open items
-- **Historical data**: existing `demo_requests` rows only have `email`, no
-  `telegram_username`. Decide: backfill with a placeholder, leave the column nullable for old
-  rows only (enforce "required" at the app/validation layer for new submissions, not a DB
-  constraint), or just accept old rows show blank/"—" for Telegram contact. Recommend: make the
-  DB column nullable, enforce "required" via form validation only — avoids a painful backfill.
+### 7. Security section
+- New `Section` row, key `security`, title "Your Data. Your Control.", items:
+  2FA, Role-Based Access, Encryption, Backups, Activity Logs — again reuses
+  `IconGrid`. **Only include items you confirm are actually implemented**
+  (decision #2) — I won't ship an unverified security claim.
+
+### 8. Mid-page + bottom CTA
+- Bottom: `final_cta` section already exists with a working demo-request form —
+  update its title to "Ready to Take Control of Your Sales?" and button label to
+  "Book Your Free Demo" (content edit only, no code change).
+- Mid-page (after Features, per the brief "after the main features"): add a new
+  lightweight `Section` row, key `mid_page_cta`, and a small new component
+  (`cta-banner.tsx` — headline + single button, no form) so it doesn't duplicate
+  the actual booking form or clash with the `#demo` anchor. Button links to
+  `#demo` to scroll down to the real form.
+
+### 9. Footer overhaul
+- `site-footer.tsx`: restructure the "Platform" column to
+  Features / Solutions / Integrations / Pricing / Contact / Security / Privacy
+  Policy / Terms / Login. Contact → existing `mailto:`/`tel:` links already
+  present; Security → `#security` anchor (new section from #7); Privacy
+  Policy/Terms → pending decision #4 (new minimal pages `/privacy`, `/terms` +
+  routes, or "Coming soon" placeholders).
+- Visual pass: tighten column spacing/typography to look more like a standard
+  B2B SaaS footer (this repo's footer is currently fairly bare — 3-column grid
+  with logo/blurb, nav, contact). No structural rebuild, just spacing/type/
+  divider polish alongside the content changes above.
+
+### 10. Final UI polish pass
+- Sweep every section component for:
+  - **Buttons**: confirm all primary CTAs use the same `gradient` Button
+    variant, secondary actions use `outline`, consistent sizing (`lg` for
+    hero/CTA, default elsewhere).
+  - **Cards**: confirm consistent `rounded-2xl`/`rounded-xl` usage and
+    `border bg-card p-6/p-8` pattern across Features, Forex, Sales Team,
+    Security, Pricing, FAQ, Product Showcase — currently slightly inconsistent
+    (some use `rounded-2xl`, some `rounded-xl`, some `rounded-3xl` on
+    `final-cta.tsx`'s form card).
+  - **Spacing**: standardize section vertical padding (`py-16 sm:py-20` is
+    the common pattern already — check `pricing`/`roi-calculator`/
+    `social-proof` for outliers).
+  - **Typography**: consistent heading scale (`text-2xl`/`text-3xl`/`text-4xl`
+    hierarchy per section level — h1 hero vs h2 section titles).
+  - **Remove unnecessary elements**: candidates flagged during exploration —
+    the floating "AI Summary: Ready" / "Assigned → Agent A" badges on the Hero
+    mock (fake, and gone anyway once real screenshot lands); re-check
+    `roi-calculator.tsx` fits the "no fake stats" spirit since its math is
+    hard-coded, not tied to real data — likely fine since it's explicitly a
+    user-input calculator, not a claimed stat.
+  - **Mobile check**: manually verify each reworked/new section
+    (`icon-grid.tsx`, `cta-banner.tsx`, updated `platform-features.tsx`,
+    updated footer) at mobile widths after implementation.
+
+## Suggested execution order
+1. Confirm decisions #1-#4 (or accept my defaults above).
+2. Nav + footer structure (#3, #9 nav part) — quick, unblocks nothing else.
+3. Content-only edits: Hero (#1), Features rewrite (#4), bottom CTA copy (#8) —
+   all via `SectionSeeder.php`, no new components.
+4. Build `IconGrid` + `CtaBanner` components, wire into `section-renderer.tsx`,
+   seed Forex (#5), Sales Team (#6), Security (#7), mid-page CTA (#8) sections.
+5. Privacy/Terms pages if you want real pages now (#9).
+6. Final polish pass (#10) across everything touched.
+7. Full manual pass on mobile + re-run `npm run build`/lint/tests.

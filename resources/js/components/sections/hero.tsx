@@ -1,9 +1,8 @@
-import { ArrowRight, BarChart3, PlayCircle, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, PlayCircle } from 'lucide-react';
 
 import { BrowserMock } from '@/components/sections/browser-mock';
 import { Container } from '@/components/sections/container';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import type { PublicSection } from '@/types/sections';
 
 export function Hero({ section }: { section: PublicSection }) {
@@ -90,111 +89,16 @@ export function Hero({ section }: { section: PublicSection }) {
                     </div>
                 </div>
 
-                <div className="relative mt-16 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150">
-                    <BrowserMock title="AlphaMasterCRM — Dashboard" className="text-left">
-                        <div className="grid grid-cols-3 gap-3">
-                            <div className="col-span-1 space-y-3">
-                                <div className="h-3 w-3/4 rounded bg-muted" />
-
-                                <div className="space-y-2 rounded-lg border bg-indigo-600/5 p-3">
-                                    <Users className="size-4 text-indigo-500" />
-                                    <p className="text-lg font-semibold tabular-nums text-foreground">2,481</p>
-                                    <p className="text-[11px] text-muted-foreground">Active leads</p>
-                                </div>
-
-                                <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
-                                    <TrendingUp className="size-4 text-emerald-500" />
-                                    <p className="text-lg font-semibold tabular-nums text-foreground">+18%</p>
-                                    <p className="text-[11px] text-muted-foreground">Conversion rate</p>
-                                </div>
-
-                                <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
-                                    <BarChart3 className="size-4 text-indigo-500" />
-                                    <p className="text-lg font-semibold tabular-nums text-foreground">$92k</p>
-                                    <p className="text-[11px] text-muted-foreground">Pipeline value</p>
-                                </div>
-                            </div>
-
-                            <div className="col-span-2 space-y-3">
-                                <div className="flex h-40 gap-2 rounded-lg border bg-linear-to-br from-indigo-600/15 to-indigo-600/5 p-4">
-                                    {(() => {
-                                        const values = [45, 70, 55, 85, 60, 95, 75];
-                                        const peak = Math.max(...values);
-
-                                        return values.map((height, index) => {
-                                            const isPeak = height === peak;
-
-                                            return (
-                                                <div
-                                                    key={index}
-                                                    className="relative flex h-full flex-1 items-end"
-                                                >
-                                                    {isPeak && (
-                                                        <span className="absolute -top-5 left-1/2 -translate-x-1/2 rounded bg-indigo-600 px-1.5 py-0.5 text-[9px] font-semibold whitespace-nowrap text-white shadow-sm">
-                                                            Best day
-                                                        </span>
-                                                    )}
-                                                    <div
-                                                        className={cn(
-                                                            'w-full origin-bottom animate-in slide-in-from-bottom fill-mode-backwards rounded-t-sm duration-700',
-                                                            isPeak
-                                                                ? 'bg-indigo-600 shadow-[0_0_12px_rgba(79,70,229,0.5)]'
-                                                                : 'bg-indigo-600/30',
-                                                        )}
-                                                        style={{
-                                                            height: `${height}%`,
-                                                            animationDelay: `${300 + index * 80}ms`,
-                                                        }}
-                                                    />
-                                                </div>
-                                            );
-                                        });
-                                    })()}
-                                </div>
-                                <div className="space-y-2 rounded-lg border bg-card p-3">
-                                    {['Acme Corp', 'Globex Inc.', 'Initech LLC'].map((name) => (
-                                        <div
-                                            key={name}
-                                            className="flex items-center justify-between gap-3"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <span className="size-6 rounded-full bg-indigo-600/15" />
-                                                <span className="text-xs font-medium text-foreground">
-                                                    {name}
-                                                </span>
-                                            </div>
-                                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
-                                                Won
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </BrowserMock>
-
-                    {/* Floating annotation badges, matching the reference's callouts
-                        directly on the product screenshot. The outer span positions
-                        the badge fully outside the card (clear of the window-chrome
-                        bar, with a gap) — the inner pill owns its own transform for a
-                        gentle continuous float, so the two transforms don't collide. */}
-                    <span className="absolute top-0 -left-2 hidden -translate-y-full pb-3 sm:block">
-                        <span className="animate-float-badge inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-xs font-medium text-emerald-600 shadow-lg">
-                            <span className="relative flex size-1.5">
-                                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
-                            </span>
-                            AI Summary: Ready
-                        </span>
-                    </span>
-                    <span className="absolute right-4 bottom-0 hidden translate-y-full pt-3 sm:block">
-                        <span
-                            className="animate-float-badge inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-xs font-medium text-indigo-600 shadow-lg"
-                            style={{ animationDelay: '1.4s' }}
-                        >
-                            Assigned → Agent A
-                        </span>
-                    </span>
+                <div className="relative mt-16 w-full max-w-5xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150">
+                    <div className="animate-float-hero">
+                        <BrowserMock title="AlphaMasterCRM — Dashboard" className="text-left" noPadding>
+                            <img
+                                src="/images/dashboard-screenshot.png"
+                                alt="AlphaMasterCRM dashboard showing leads sent, conversions, pending FTDs, rejection rate, total leads, and a leads-and-conversions chart"
+                                className="w-full"
+                            />
+                        </BrowserMock>
+                    </div>
                 </div>
 
                 {section.items.length > 0 && (

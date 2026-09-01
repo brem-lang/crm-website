@@ -33,4 +33,24 @@ class HomeController extends Controller
             'settings' => SiteSetting::current(),
         ]);
     }
+
+    /**
+     * Render the privacy policy page.
+     */
+    public function privacy(): Response
+    {
+        return Inertia::render('privacy', [
+            'settings' => SiteSetting::current(),
+        ]);
+    }
+
+    /**
+     * Render the terms of service page.
+     */
+    public function terms(): Response
+    {
+        return Inertia::render('terms', [
+            'settings' => SiteSetting::current(),
+        ]);
+    }
 }

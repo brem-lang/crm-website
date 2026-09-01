@@ -21,6 +21,11 @@ class SectionSeeder extends Seeder
                 [...$definition, 'sort_order' => $sortOrder],
             );
 
+            // Drop items that are no longer part of this section's definition, so
+            // re-running the seeder after a content rewrite doesn't leave stale
+            // rows (e.g. removed feature cards) sitting alongside the new ones.
+            $section->items()->whereNotIn('title', array_column($items, 'title'))->delete();
+
             foreach ($items as $itemSortOrder => $item) {
                 $section->items()->updateOrCreate(
                     ['title' => $item['title']],
@@ -38,14 +43,14 @@ class SectionSeeder extends Seeder
         return [
             'hero' => [
                 'key' => 'hero',
-                'title' => 'The All-in-One CRM Built for Forex, Crypto & Sales Teams',
-                'subtitle' => 'Manage leads, close deals, and scale your sales operation — purpose-built for Forex/CFD brokers, crypto companies, call centers, lead generation companies, and sales teams.',
+                'title' => 'The CRM Built for Forex, Crypto & High-Performance Sales Teams',
+                'subtitle' => 'Manage leads, clients, sales teams, follow-ups and performance from one powerful CRM.',
                 'content' => [
                     'eyebrow_text' => 'v1.0 · Now available',
-                    'primary_button_text' => 'Book a Demo',
+                    'primary_button_text' => 'Book a Free Demo',
                     'primary_button_url' => '#demo',
-                    'secondary_button_text' => 'Explore the CRM',
-                    'secondary_button_url' => '#product-showcase',
+                    'secondary_button_text' => 'Explore Features',
+                    'secondary_button_url' => '#platform-features',
                 ],
                 'items' => [
                     ['title' => 'Live dashboard refresh', 'meta' => ['value' => '<300ms']],
@@ -61,37 +66,51 @@ class SectionSeeder extends Seeder
                 'subtitle' => 'One platform for lead intake, distribution, sales, and reporting — plus the AI and automation to keep it running itself.',
                 'content' => [],
                 'items' => [
-                    ['title' => 'Smart Lead Management', 'icon' => 'users', 'description' => 'Capture, score, and route leads automatically so your team always works the hottest opportunities first.'],
-                    ['title' => 'Integrated Call Center', 'icon' => 'phone', 'description' => 'Dial, log, and track every call from inside the CRM — no separate systems to juggle.'],
-                    ['title' => 'Sales Pipeline Tracking', 'icon' => 'trending-up', 'description' => 'Visualize every deal stage and know exactly where revenue is coming from next.'],
-                    ['title' => 'Real-Time Reporting & Dashboards', 'icon' => 'bar-chart-3', 'description' => 'Advertiser, affiliate, country, and conversion performance — tracked live in dashboards built for sales leaders.'],
-                    ['title' => 'Roles, Compliance & Access Control', 'icon' => 'shield-check', 'description' => 'Granular role-based permissions plus the audit trails and recordkeeping regulated brokers and financial teams need.'],
-                    ['title' => 'AI Customer Summaries', 'icon' => 'sparkles', 'description' => 'Summarizes customer history to help agents maintain conversation context.'],
-                    ['title' => 'AI Content Assistance', 'icon' => 'pen-line', 'description' => 'AI assistance to quickly write follow-up messages.'],
-                    ['title' => 'Smart Lead Distribution', 'icon' => 'shuffle', 'description' => 'Automatically assigns new leads to the appropriate agents based on predefined rules.'],
-                    ['title' => 'Automated Follow-Ups', 'icon' => 'refresh-cw', 'description' => 'Scheduled auto-follow-ups to keep leads warm.'],
-                    ['title' => 'Workflow Automation', 'icon' => 'workflow', 'description' => 'Automates all sales process steps, from assignment to status updates.'],
-                    ['title' => 'Management Insights', 'icon' => 'line-chart', 'description' => 'Presents important trends and patterns for sales management.'],
-                    [
-                        'title' => 'Advertisers',
-                        'icon' => 'handshake',
-                        'description' => 'The buyers and partners your leads are sent to. Each advertiser gets its own integration type, API credentials, and request/response format — with caps, scheduling, and conversion tracking built in.',
-                        'meta' => [
-                            'highlight_1' => 'Daily & hourly caps with weekly active-window scheduling',
-                            'highlight_2' => 'Per-advertiser API request/response formatting',
-                            'highlight_3' => 'Linked conversion tracking and hourly performance reporting',
-                        ],
-                    ],
-                    [
-                        'title' => 'Affiliates',
-                        'icon' => 'megaphone',
-                        'description' => 'The sources your leads come from. Affiliates submit leads through authenticated public intake endpoints, with per-affiliate rules and full visibility into what gets accepted or rejected.',
-                        'meta' => [
-                            'highlight_1' => 'API-key authenticated lead intake endpoints',
-                            'highlight_2' => 'Per-affiliate rules for eligible advertisers, countries, and offers',
-                            'highlight_3' => 'Submission failure logs and affiliate performance reporting',
-                        ],
-                    ],
+                    ['title' => 'Lead Management', 'icon' => 'users', 'description' => 'Capture, score, and route leads automatically so your team always works the hottest opportunities first.'],
+                    ['title' => 'Sales Pipeline', 'icon' => 'trending-up', 'description' => 'Visualize every deal stage and know exactly where revenue is coming from next.'],
+                    ['title' => 'Client Management', 'icon' => 'handshake', 'description' => 'Keep every client\'s full history, contact details, and status in one organized profile.'],
+                    ['title' => 'Team Management', 'icon' => 'shield-check', 'description' => 'Role-based permissions and structure so every agent and manager sees exactly what they need to.'],
+                    ['title' => 'Follow-ups & Activities', 'icon' => 'refresh-cw', 'description' => 'Scheduled follow-ups and logged activity keep every lead moving instead of going cold.'],
+                    ['title' => 'Reports & Analytics', 'icon' => 'bar-chart-3', 'description' => 'Live dashboards on leads, conversions, and agent performance — no manual reporting required.'],
+                ],
+            ],
+
+            'mid_page_cta' => [
+                'key' => 'mid_page_cta',
+                'title' => 'Ready to Take Control of Your Sales?',
+                'subtitle' => 'See it yourself — book a free walkthrough of the full platform.',
+                'content' => [
+                    'button_text' => 'Book Your Free Demo',
+                    'button_url' => '#demo',
+                ],
+            ],
+
+            'forex_brokers' => [
+                'key' => 'forex_brokers',
+                'title' => 'Built for Forex Brokers',
+                'subtitle' => 'The compliance, distribution, and reporting a regulated brokerage actually needs.',
+                'content' => [],
+                'items' => [
+                    ['title' => 'Compliance-Ready Access Control', 'icon' => 'shield-check', 'description' => 'Role-based permissions and audit trails built for regulated recordkeeping requirements.'],
+                    ['title' => 'Rule-Based Lead Distribution', 'icon' => 'shuffle', 'description' => 'Route incoming leads to the right desk automatically, respecting caps and active schedules.'],
+                    ['title' => 'Real-Time Reporting', 'icon' => 'bar-chart-3', 'description' => 'Live visibility into conversion and desk performance, tracked as it happens.'],
+                    ['title' => 'Pipeline & Deal Tracking', 'icon' => 'trending-up', 'description' => 'Follow every trader from first contact to funded account, stage by stage.'],
+                    ['title' => 'Automated Follow-Ups', 'icon' => 'refresh-cw', 'description' => 'Scheduled follow-ups keep prospective traders engaged without manual chasing.'],
+                ],
+            ],
+
+            'sales_team' => [
+                'key' => 'sales_team',
+                'title' => 'Give Your Sales Team the Tools to Close More Deals',
+                'subtitle' => 'Everything a rep and a sales manager need, in one place.',
+                'content' => [],
+                'items' => [
+                    ['title' => 'Lead Assignment', 'icon' => 'shuffle', 'description' => 'New leads are routed to the right agent automatically, based on your own rules.'],
+                    ['title' => 'Follow-ups', 'icon' => 'refresh-cw', 'description' => 'Scheduled follow-ups make sure no lead is left waiting too long for a response.'],
+                    ['title' => 'Agent Performance', 'icon' => 'target', 'description' => "See each agent's activity and results without pulling a manual report."],
+                    ['title' => 'Pipeline Management', 'icon' => 'workflow', 'description' => 'Track every deal stage clearly, from first contact to close.'],
+                    ['title' => 'Conversion Tracking', 'icon' => 'line-chart', 'description' => 'Know exactly which leads convert and where they came from.'],
+                    ['title' => 'Reporting', 'icon' => 'bar-chart-3', 'description' => 'Live dashboards give managers a real-time view of the whole team.'],
                 ],
             ],
 
@@ -200,6 +219,20 @@ class SectionSeeder extends Seeder
                 ],
             ],
 
+            'security' => [
+                'key' => 'security',
+                'title' => 'Your Data. Your Control.',
+                'subtitle' => 'Security built into the platform, not bolted on after.',
+                'content' => [],
+                'items' => [
+                    ['title' => 'Two-Factor Authentication', 'icon' => 'key-round', 'description' => 'An extra verification step on login keeps accounts secure even if a password leaks.'],
+                    ['title' => 'Role-Based Access', 'icon' => 'shield-check', 'description' => 'Every user only sees and does what their role allows — nothing more.'],
+                    ['title' => 'Encryption', 'icon' => 'lock', 'description' => 'Data is encrypted in transit and at rest.'],
+                    ['title' => 'Backups', 'icon' => 'database', 'description' => 'Regular backups protect your data against loss.'],
+                    ['title' => 'Activity Logs', 'icon' => 'activity', 'description' => 'Every important action is logged, giving you a clear audit trail.'],
+                ],
+            ],
+
             'social_proof' => [
                 'key' => 'social_proof',
                 'title' => 'Trusted by Sales Teams Like Yours',
@@ -302,10 +335,10 @@ class SectionSeeder extends Seeder
 
             'final_cta' => [
                 'key' => 'final_cta',
-                'title' => 'Ready to Transform Your Sales Operation?',
+                'title' => 'Ready to Take Control of Your Sales?',
                 'subtitle' => 'Book a personalized demo and see how AlphaMasterCRM can power your team.',
                 'content' => [
-                    'submit_button_text' => 'Request My Demo',
+                    'submit_button_text' => 'Book Your Free Demo',
                 ],
             ],
         ];

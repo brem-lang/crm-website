@@ -1,6 +1,8 @@
+import { CtaBanner } from '@/components/sections/cta-banner';
 import { Faq } from '@/components/sections/faq';
 import { FinalCta } from '@/components/sections/final-cta';
 import { Hero } from '@/components/sections/hero';
+import { IconGrid } from '@/components/sections/icon-grid';
 import { Industries } from '@/components/sections/industries';
 import { LeadPipeline } from '@/components/sections/lead-pipeline';
 import { PlatformFeatures } from '@/components/sections/platform-features';
@@ -26,6 +28,14 @@ export function SectionRenderer({
                         return <Hero key={section.id} section={section} />;
                     case 'platform_features':
                         return <PlatformFeatures key={section.id} section={section} />;
+                    case 'mid_page_cta':
+                        return <CtaBanner key={section.id} section={section} />;
+                    case 'forex_brokers':
+                        return <IconGrid key={section.id} section={section} id="forex-brokers" />;
+                    case 'sales_team':
+                        return <IconGrid key={section.id} section={section} id="sales-team" />;
+                    case 'security':
+                        return <IconGrid key={section.id} section={section} id="security" />;
                     case 'product_showcase':
                         return <ProductShowcase key={section.id} section={section} />;
                     case 'industries':

@@ -10,6 +10,8 @@ Route::get('/', [HomeController::class, 'index'])
     ->middleware('track-visitor')
     ->name('home');
 Route::get('api-docs', [HomeController::class, 'apiDocs'])->name('api-docs');
+Route::get('privacy', [HomeController::class, 'privacy'])->name('privacy');
+Route::get('terms', [HomeController::class, 'terms'])->name('terms');
 Route::post('demo-requests', [DemoRequestController::class, 'store'])
     ->middleware('throttle:demo-requests')
     ->name('demo-requests.store');

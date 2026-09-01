@@ -1,16 +1,15 @@
 import { Facebook, Instagram, Linkedin, Mail, Phone, Twitter } from 'lucide-react';
 
 import { Container } from '@/components/sections/container';
-import { home } from '@/routes';
+import { home, login } from '@/routes';
 import type { SiteSettings } from '@/types/sections';
 
-const NAV_LINKS = [
+const PLATFORM_LINKS = [
     { href: '#platform-features', label: 'Features' },
-    { href: '#product-showcase', label: 'Product' },
-    { href: '#pipeline', label: 'Pipeline' },
-    { href: '#industries', label: 'Industries' },
+    { href: '#industries', label: 'Solutions' },
+    { href: '#pipeline', label: 'Integrations' },
     { href: '#pricing', label: 'Pricing' },
-    { href: '/api-docs', label: 'API Docs' },
+    { href: '#security', label: 'Security' },
 ];
 
 const SOCIAL_LINKS: { key: keyof SiteSettings; label: string; icon: typeof Facebook }[] = [
@@ -70,7 +69,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                     <div>
                         <h3 className="text-sm font-semibold text-foreground">Platform</h3>
                         <ul className="mt-4 space-y-3">
-                            {NAV_LINKS.map((link) => (
+                            {PLATFORM_LINKS.map((link) => (
                                 <li key={link.href}>
                                     <a
                                         href={resolveHref(link.href)}
@@ -84,7 +83,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                     </div>
 
                     <div>
-                        <h3 className="text-sm font-semibold text-foreground">Get in touch</h3>
+                        <h3 className="text-sm font-semibold text-foreground">Company</h3>
                         <ul className="mt-4 space-y-3">
                             {settings.contact_email && (
                                 <li>
@@ -110,10 +109,26 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                             )}
                             <li>
                                 <a
-                                    href={resolveHref('#demo')}
-                                    className="text-sm font-medium text-indigo-500 hover:text-indigo-600"
+                                    href="/privacy"
+                                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                                 >
-                                    Book a Demo →
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="/terms"
+                                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    Terms
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href={login().url}
+                                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    Login
                                 </a>
                             </li>
                         </ul>
