@@ -23,7 +23,7 @@ export function IconGrid({ section, id }: { section: PublicSection; id: string }
                     )}
                 </Reveal>
 
-                <RevealGroup className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <RevealGroup className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {section.items.map((item, index) => {
                         const Icon = getIcon(item.icon);
 

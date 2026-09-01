@@ -14,10 +14,10 @@ export function CtaBanner({ section }: { section: PublicSection }) {
     const content = section.content ?? {};
 
     return (
-        <section className="py-16 sm:py-20">
+        <section className="py-20 sm:py-28">
             <Container>
-                <Reveal className="flex flex-col items-center gap-6 rounded-3xl border bg-muted/30 px-6 py-14 text-center sm:px-12">
-                    <h2 className="max-w-2xl text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                <Reveal className="flex flex-col items-center gap-6 rounded-3xl border bg-muted/30 px-6 py-16 text-center sm:px-12 sm:py-20">
+                    <h2 className="max-w-2xl text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
