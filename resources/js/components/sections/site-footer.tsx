@@ -1,7 +1,7 @@
 import { Facebook, Instagram, Linkedin, Mail, Phone, Twitter } from 'lucide-react';
 
 import { Container } from '@/components/sections/container';
-import { home, login } from '@/routes';
+import { apiDocs, home, login } from '@/routes';
 import type { SiteSettings } from '@/types/sections';
 
 const PLATFORM_LINKS = [
@@ -10,6 +10,7 @@ const PLATFORM_LINKS = [
     { href: '#pipeline', label: 'Integrations' },
     { href: '#pricing', label: 'Pricing' },
     { href: '#security', label: 'Security' },
+    { href: apiDocs().url, label: 'API Docs' },
 ];
 
 const SOCIAL_LINKS: { key: keyof SiteSettings; label: string; icon: typeof Facebook }[] = [
