@@ -17,18 +17,18 @@ export function Faq({ section }: { section: PublicSection }) {
     );
 
     return (
-        <section id="faq" className="py-20 sm:py-28">
+        <section id="faq" className="bg-gradient-to-br from-indigo-600 to-indigo-800 py-20 sm:py-28">
             <Container className="max-w-3xl">
                 <Reveal className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
-                        <p className="mt-4 text-lg text-muted-foreground">{section.subtitle}</p>
+                        <p className="mt-4 text-lg text-white/80">{section.subtitle}</p>
                     )}
                 </Reveal>
 
-                <RevealGroup className="mt-12 divide-y divide-border rounded-2xl border">
+                <RevealGroup className="mt-12 flex flex-col gap-3">
                     {section.items.map((item, index) => {
                         const isOpen = openId === item.id;
 
@@ -37,19 +37,20 @@ export function Faq({ section }: { section: PublicSection }) {
                                 <Collapsible
                                     open={isOpen}
                                     onOpenChange={(open) => setOpenId(open ? item.id : null)}
+                                    className="overflow-hidden rounded-2xl bg-white/10 backdrop-blur-sm"
                                 >
                                     <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left">
-                                        <span className="font-medium text-foreground">
+                                        <span className="font-medium text-white">
                                             {item.title}
                                         </span>
                                         <Plus
                                             className={cn(
-                                                'size-4 shrink-0 text-indigo-500 transition-transform duration-200',
+                                                'size-4 shrink-0 text-white transition-transform duration-200',
                                                 isOpen && 'rotate-45',
                                             )}
                                         />
                                     </CollapsibleTrigger>
-                                    <CollapsibleContent className="px-6 pb-5 text-sm leading-7 text-muted-foreground">
+                                    <CollapsibleContent className="px-6 pb-5 text-sm leading-7 text-white/75">
                                         {item.description}
                                     </CollapsibleContent>
                                 </Collapsible>

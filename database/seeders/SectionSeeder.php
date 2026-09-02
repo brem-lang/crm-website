@@ -47,16 +47,17 @@ class SectionSeeder extends Seeder
                 'subtitle' => 'Manage leads, clients, sales teams, follow-ups and performance from one powerful CRM.',
                 'content' => [
                     'eyebrow_text' => 'v1.0 · Now available',
+                    'highlight_text' => 'Forex, Crypto &',
                     'primary_button_text' => 'Book a Free Demo',
                     'primary_button_url' => '#demo',
                     'secondary_button_text' => 'Explore Features',
                     'secondary_button_url' => '#platform-features',
                 ],
                 'items' => [
-                    ['title' => 'Live dashboard refresh', 'meta' => ['value' => '<300ms']],
-                    ['title' => 'CRM & CPA integrations', 'meta' => ['value' => '15+']],
-                    ['title' => 'Uptime SLA', 'meta' => ['value' => '99.9%']],
-                    ['title' => 'Support', 'meta' => ['value' => '24/7']],
+                    ['title' => 'Capture More Leads', 'icon' => 'target', 'description' => 'Collect leads from all sources and never miss an opportunity.'],
+                    ['title' => 'Convert Faster', 'icon' => 'users', 'description' => 'Automate follow-ups and close more deals with less effort.'],
+                    ['title' => 'Track Performance', 'icon' => 'trending-up', 'description' => 'Real-time reports and analytics to grow your sales.'],
+                    ['title' => 'Your Data. Your Control.', 'icon' => 'shield-check', 'description' => 'Enterprise-grade security and full control over your data.'],
                 ],
             ],
 
@@ -66,12 +67,15 @@ class SectionSeeder extends Seeder
                 'subtitle' => 'One platform for lead intake, distribution, sales, and reporting — plus the AI and automation to keep it running itself.',
                 'content' => [],
                 'items' => [
-                    ['title' => 'Lead Management', 'icon' => 'users', 'description' => 'Capture, score, and route leads automatically so your team always works the hottest opportunities first.'],
-                    ['title' => 'Sales Pipeline', 'icon' => 'trending-up', 'description' => 'Visualize every deal stage and know exactly where revenue is coming from next.'],
-                    ['title' => 'Client Management', 'icon' => 'handshake', 'description' => 'Keep every client\'s full history, contact details, and status in one organized profile.'],
-                    ['title' => 'Team Management', 'icon' => 'shield-check', 'description' => 'Role-based permissions and structure so every agent and manager sees exactly what they need to.'],
-                    ['title' => 'Follow-ups & Activities', 'icon' => 'refresh-cw', 'description' => 'Scheduled follow-ups and logged activity keep every lead moving instead of going cold.'],
-                    ['title' => 'Reports & Analytics', 'icon' => 'bar-chart-3', 'description' => 'Live dashboards on leads, conversions, and agent performance — no manual reporting required.'],
+                    ['title' => 'Smart Lead Management', 'icon' => 'users', 'description' => 'Capture, score, and route leads automatically so your team always works the hottest opportunities first.'],
+                    ['title' => 'Integrated Call Center', 'icon' => 'phone', 'description' => 'Dial, log, and track every call from inside the CRM — no separate systems to juggle.'],
+                    ['title' => 'Sales Pipeline Tracking', 'icon' => 'trending-up', 'description' => 'Visualize every deal stage and know exactly where revenue is coming from next.'],
+                    ['title' => 'Real-Time Reporting & Dashboards', 'icon' => 'bar-chart-3', 'description' => 'Advertiser, affiliate, country, and conversion performance — tracked live in dashboards built for sales leaders.', 'meta' => ['highlighted' => 'true']],
+                    ['title' => 'Roles, Compliance & Access Control', 'icon' => 'shield-check', 'description' => 'Granular role-based permissions plus the audit trails and recordkeeping regulated brokers and financial teams need.'],
+                    ['title' => 'AI Customer Summaries', 'icon' => 'sparkles', 'description' => 'Summarizes customer history to help agents maintain conversation context instantly.', 'meta' => ['badge' => 'AI Powered']],
+                    ['title' => 'AI Content Assistance', 'icon' => 'pen-line', 'description' => 'AI assistance to quickly write follow-up messages, emails, and notes with one click.'],
+                    ['title' => 'Smart Lead Distribution', 'icon' => 'shuffle', 'description' => 'Automatically assigns new leads to the appropriate agents based on predefined rules and workload balance.'],
+                    ['title' => 'Automated Follow-Ups', 'icon' => 'refresh-cw', 'description' => 'Scheduled auto-follow-ups to keep leads warm without manual reminders slipping through the cracks.'],
                 ],
             ],
 
@@ -135,11 +139,11 @@ class SectionSeeder extends Seeder
                 'subtitle' => 'Purpose-built workflows for the industries that need them most.',
                 'content' => [],
                 'items' => [
-                    ['title' => 'Forex & CFD', 'description' => 'Manage traders and accounts with the compliance and precision this industry demands.'],
-                    ['title' => 'Crypto', 'description' => 'Onboard and support crypto clients with fast, flexible lead workflows.'],
-                    ['title' => 'Call Centers', 'description' => 'Give every agent the tools to dial, log, and convert more efficiently.'],
-                    ['title' => 'Lead Generation', 'description' => 'Capture and distribute leads the moment they come in.'],
-                    ['title' => 'Sales Organizations', 'description' => 'Give every rep a clear pipeline and every manager clear visibility.'],
+                    ['title' => 'Forex & CFD', 'icon' => 'dollar-sign', 'link_url' => '#', 'description' => 'Manage traders and accounts with the compliance and precision this industry demands.'],
+                    ['title' => 'Crypto', 'icon' => 'zap', 'link_url' => '#', 'description' => 'Onboard and support crypto clients with fast, flexible lead workflows.'],
+                    ['title' => 'Call Centers', 'icon' => 'phone', 'link_url' => '#', 'description' => 'Give every agent the tools to dial, log, and convert more efficiently.'],
+                    ['title' => 'Lead Generation', 'icon' => 'bar-chart-3', 'link_url' => '#', 'description' => 'Capture and distribute leads the moment they come in.'],
+                    ['title' => 'Sales Organizations', 'icon' => 'users', 'link_url' => '#', 'description' => 'Give every rep a clear pipeline and every manager clear visibility.'],
                 ],
             ],
 
@@ -147,7 +151,9 @@ class SectionSeeder extends Seeder
                 'key' => 'lead_pipeline',
                 'title' => 'A Lead Status Pipeline That Runs Itself',
                 'subtitle' => 'From the moment a lead comes in to the moment it converts, every stage is automated and tracked.',
-                'content' => [],
+                'content' => [
+                    'eyebrow_text' => 'Automated Workflow Engine',
+                ],
                 'items' => [
                     [
                         'title' => 'Intake',
@@ -338,7 +344,13 @@ class SectionSeeder extends Seeder
                 'title' => 'Ready to Take Control of Your Sales?',
                 'subtitle' => 'Book a personalized demo and see how AlphaMasterCRM can power your team.',
                 'content' => [
+                    'eyebrow_text' => 'Next-Gen Sales & CRM Automation',
+                    'trust_text' => 'Trusted by 2,500+ sales leaders worldwide',
                     'submit_button_text' => 'Book Your Free Demo',
+                ],
+                'items' => [
+                    ['title' => 'Lightning Fast Setup', 'icon' => 'zap', 'meta' => ['kind' => 'pill']],
+                    ['title' => 'Enterprise Security', 'icon' => 'shield-check', 'meta' => ['kind' => 'pill']],
                 ],
             ],
         ];

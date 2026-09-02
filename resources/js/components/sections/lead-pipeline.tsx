@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import type { PublicSection } from '@/types/sections';
 
 export function LeadPipeline({ section }: { section: PublicSection }) {
+    const content = section.content ?? {};
     const [activeId, setActiveId] = useState(section.items[0]?.id ?? null);
     const active = section.items.find((item) => item.id === activeId) ?? section.items[0];
     const activeHighlights = active?.meta
@@ -17,6 +18,12 @@ export function LeadPipeline({ section }: { section: PublicSection }) {
         <section id="pipeline" className="bg-muted/30 py-20 sm:py-28">
             <Container>
                 <Reveal className="mx-auto max-w-2xl text-center">
+                    {content.eyebrow_text && (
+                        <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-indigo-600 uppercase">
+                            <span className="size-1.5 rounded-full bg-indigo-500" />
+                            {content.eyebrow_text}
+                        </span>
+                    )}
                     <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         {section.title}
                     </h2>

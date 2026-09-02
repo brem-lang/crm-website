@@ -3,6 +3,7 @@ import {
     BadgeCheck,
     BarChart3,
     Database,
+    DollarSign,
     GitBranch,
     Handshake,
     Inbox,
@@ -55,6 +56,7 @@ const ICONS: Record<string, LucideIcon> = {
     activity: Activity,
     'key-round': KeyRound,
     database: Database,
+    'dollar-sign': DollarSign,
 };
 
 export function getIcon(name?: string | null): LucideIcon | null {

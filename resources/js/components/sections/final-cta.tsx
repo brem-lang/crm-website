@@ -13,6 +13,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { getIcon } from '@/lib/icon-map';
 import demoRequests from '@/routes/demo-requests';
 import type { PublicSection } from '@/types/sections';
 
@@ -33,6 +34,7 @@ export function FinalCta({
     submitted: boolean;
 }) {
     const content = section.content ?? {};
+    const pills = section.items.filter((item) => item.meta?.kind === 'pill');
 
     return (
         <section id="demo" className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-indigo-800 py-20 text-white sm:py-28">
@@ -47,7 +49,14 @@ export function FinalCta({
 
             <Container className="grid gap-12 lg:grid-cols-2 lg:items-center">
                 <Reveal>
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                    {content.eyebrow_text && (
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium text-white">
+                            <span className="size-1.5 rounded-full bg-emerald-400" />
+                            {content.eyebrow_text}
+                        </span>
+                    )}
+
+                    <h2 className="mt-6 text-3xl font-bold tracking-tight sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
@@ -55,6 +64,37 @@ export function FinalCta({
                             {section.subtitle}
                         </p>
                     )}
+
+                    {pills.length > 0 && (
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            {pills.map((pill) => {
+                                const Icon = getIcon(pill.icon);
+
+                                return (
+                                    <span
+                                        key={pill.id}
+                                        className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3.5 py-2 text-sm font-medium text-white"
+                                    >
+                                        {Icon && <Icon className="size-4" />}
+                                        {pill.title}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <div className="mt-8 inline-flex items-center gap-2 text-sm text-white/80">
+                        <span className="flex -space-x-2">
+                            {['bg-white/40', 'bg-white/60', 'bg-white/80'].map((color) => (
+                                <span
+                                    key={color}
+                                    className={`size-6 rounded-full border-2 border-indigo-700 ${color}`}
+                                    aria-hidden
+                                />
+                            ))}
+                        </span>
+                        <span>{content.trust_text ?? 'Trusted by 2,500+ sales leaders worldwide'}</span>
+                    </div>
                 </Reveal>
 
                 <Reveal

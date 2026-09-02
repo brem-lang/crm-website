@@ -3,7 +3,33 @@ import { ArrowRight, PlayCircle } from 'lucide-react';
 import { BrowserMock } from '@/components/sections/browser-mock';
 import { Container } from '@/components/sections/container';
 import { Button } from '@/components/ui/button';
+import { getIcon } from '@/lib/icon-map';
 import type { PublicSection } from '@/types/sections';
+
+/**
+ * Splits the title around `highlight` (if it's actually present in it) and
+ * wraps that substring in the brand color — lets the seeded content control
+ * which part of the headline gets the accent, e.g. "Forex, Crypto &".
+ */
+function renderTitle(title: string | null, highlight?: string) {
+    if (!title || !highlight) {
+        return title;
+    }
+
+    const index = title.indexOf(highlight);
+
+    if (index === -1) {
+        return title;
+    }
+
+    return (
+        <>
+            {title.slice(0, index)}
+            <span className="text-indigo-600">{highlight}</span>
+            {title.slice(index + highlight.length)}
+        </>
+    );
+}
 
 export function Hero({ section }: { section: PublicSection }) {
     const content = section.content ?? {};
@@ -23,7 +49,7 @@ export function Hero({ section }: { section: PublicSection }) {
                 aria-hidden
             />
 
-            <Container className="flex flex-col items-center text-center">
+            <Container className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {content.eyebrow_text && (
                         <span className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-xs font-medium text-muted-foreground">
@@ -31,17 +57,17 @@ export function Hero({ section }: { section: PublicSection }) {
                         </span>
                     )}
 
-                    <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                        {section.title}
+                    <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                        {renderTitle(section.title, content.highlight_text)}
                     </h1>
 
                     {section.subtitle && (
-                        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+                        <p className="mt-6 max-w-xl text-lg text-muted-foreground">
                             {section.subtitle}
                         </p>
                     )}
 
-                    <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+                    <div className="mt-10 flex flex-wrap items-center gap-4">
                         {content.primary_button_text && (
                             <Button
                                 size="lg"
@@ -89,7 +115,7 @@ export function Hero({ section }: { section: PublicSection }) {
                     </div>
                 </div>
 
-                <div className="relative mt-16 w-full max-w-5xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150">
+                <div className="relative w-full animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150">
                     <div className="animate-float-hero">
                         <BrowserMock title="AlphaMasterCRM — Dashboard" className="text-left" noPadding>
                             <img
@@ -100,20 +126,35 @@ export function Hero({ section }: { section: PublicSection }) {
                         </BrowserMock>
                     </div>
                 </div>
-
-                {section.items.length > 0 && (
-                    <div className="mt-20 grid w-full grid-cols-2 gap-y-8 border-t py-10 sm:grid-cols-4">
-                        {section.items.map((item) => (
-                            <div key={item.id}>
-                                <p className="text-3xl font-extrabold tabular-nums text-foreground sm:text-4xl">
-                                    {item.meta?.value ?? '—'}
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">{item.title}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
             </Container>
+
+            {section.items.length > 0 && (
+                <Container className="mt-16 border-t py-10 sm:mt-20">
+                    <div className="grid grid-cols-2 gap-y-8 sm:grid-cols-4 sm:gap-8">
+                        {section.items.map((item) => {
+                            const Icon = getIcon(item.icon);
+
+                            return (
+                                <div key={item.id}>
+                                    {Icon && (
+                                        <div className="inline-flex size-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600">
+                                            <Icon className="size-5" />
+                                        </div>
+                                    )}
+                                    <p className="mt-4 text-base font-semibold text-foreground">
+                                        {item.title}
+                                    </p>
+                                    {item.description && (
+                                        <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                                            {item.description}
+                                        </p>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </Container>
+            )}
         </section>
     );
 }

@@ -16,14 +16,14 @@ function highlightsOf(item: PublicSectionItem) {
 
 export function Pricing({ section }: { section: PublicSection }) {
     return (
-        <section id="pricing" className="bg-muted/30 py-20 sm:py-28">
+        <section id="pricing" className="bg-gradient-to-br from-indigo-600 to-indigo-800 py-20 sm:py-28">
             <Container>
                 <Reveal className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                         {section.title}
                     </h2>
                     {section.subtitle && (
-                        <p className="mt-4 text-lg text-muted-foreground">{section.subtitle}</p>
+                        <p className="mt-4 text-lg text-white/80">{section.subtitle}</p>
                     )}
                 </Reveal>
 

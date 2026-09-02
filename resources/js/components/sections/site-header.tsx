@@ -2,6 +2,7 @@ import { Menu } from 'lucide-react';
 import { useState } from 'react';
 
 import { AppearanceToggleButton } from '@/components/appearance-toggle-button';
+import { BrandMark, SiteWordmark } from '@/components/sections/brand-mark';
 import { Container } from '@/components/sections/container';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,7 +37,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
     return (
         <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg">
             <Container className="flex h-16 items-center justify-between">
-                <a href={home().url} className="flex items-center gap-2 font-semibold tracking-tight">
+                <a href={home().url} className="flex items-center gap-2.5 font-semibold tracking-tight">
                     {settings.logo_url ? (
                         <img
                             src={settings.logo_url}
@@ -44,9 +45,13 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                             className="h-12"
                         />
                     ) : (
-                        <span className="text-base">
-                            {settings.site_title ?? 'AlphaMasterCRM'}
-                        </span>
+                        <>
+                            <BrandMark className="size-9" />
+                            <SiteWordmark
+                                title={settings.site_title ?? 'AlphaMasterCRM'}
+                                className="text-base"
+                            />
+                        </>
                     )}
                 </a>
 
