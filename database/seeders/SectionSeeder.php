@@ -299,11 +299,25 @@ class SectionSeeder extends Seeder
                 'content' => [],
                 'items' => [
                     [
+                        'title' => 'First Month Free',
+                        'description' => 'Try AlphaMasterCRM completely free for 30 days — full access, no limits, no credit card surprises.',
+                        'meta' => [
+                            'value' => '$0',
+                            'price_note' => 'then $250/mo after your first month',
+                            'highlighted' => 'true',
+                            'badge_text' => 'Limited-Time Offer',
+                            'highlight_1' => 'Full platform access from day one',
+                            'highlight_2' => 'Unlimited agent seats',
+                            'highlight_3' => 'Free data migration & onboarding',
+                            'highlight_4' => 'Cancel anytime in your first month',
+                        ],
+                        'link_url' => '#demo',
+                    ],
+                    [
                         'title' => 'AlphaMasterCRM',
                         'description' => 'Unlimited agents, leads, and integrations — everything your team needs to run its sales operation.',
                         'meta' => [
                             'value' => '$250',
-                            'highlighted' => 'true',
                             'highlight_1' => 'Unlimited agent seats',
                             'highlight_2' => 'Unlimited leads, flows & partners',
                             'highlight_3' => 'Real-time reporting & dashboards',

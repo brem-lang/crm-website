@@ -40,6 +40,8 @@ export function Pricing({ section }: { section: PublicSection }) {
                             item.meta?.highlighted === 'true' || section.items.length === 1;
                         const highlights = highlightsOf(item);
                         const price = item.meta?.value ?? null;
+                        const priceNote = item.meta?.price_note;
+                        const badgeText = item.meta?.badge_text ?? 'Most popular';
 
                         return (
                             <RevealItem
@@ -52,7 +54,7 @@ export function Pricing({ section }: { section: PublicSection }) {
                             >
                                 {highlighted && section.items.length > 1 && (
                                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow">
-                                        Most popular
+                                        {badgeText}
                                     </span>
                                 )}
 
@@ -67,6 +69,10 @@ export function Pricing({ section }: { section: PublicSection }) {
                                             /mo
                                         </span>
                                     </p>
+                                )}
+
+                                {priceNote && (
+                                    <p className="mt-1 text-sm text-muted-foreground">{priceNote}</p>
                                 )}
 
                                 {item.description && (
